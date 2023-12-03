@@ -1,5 +1,5 @@
 const OBSWebSocket = require('obs-websocket-js').default;
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, screen } = require('electron');
 const activeWindow = require('active-win');
 require('dotenv').config();
 
@@ -26,8 +26,8 @@ app.on('window-all-closed', function () {
 //overlay function
 function createWindow() {
     mainWindow = new BrowserWindow({
-        width: 105,
-        height: 105,
+        width: 35,
+        height: 35,
         autoHideMenuBar: true,
         maxHeight: 100, minHeight: 100,
         resizable: false,
@@ -38,9 +38,12 @@ function createWindow() {
             contextIsolation: false,
             enableRemoteModule: true,
         },
-        focusable: false
+        focusable: false,
+        alwaysOnTop: true
     });
 
+    const { width, height } = screen.getPrimaryDisplay().workAreaSize;
+    mainWindow.setPosition(0, height - 35);
     mainWindow.setIgnoreMouseEvents(true);
 
     // Load the HTML file
