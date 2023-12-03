@@ -1,0 +1,12 @@
+body {
+    background-color: transparent;
+}
+
+#icon {
+    position: absolute;
+    bottom: 5;
+    left: 5;
+    width: 25px;
+    height: 25px;
+    opacity: 0.35;
+}
