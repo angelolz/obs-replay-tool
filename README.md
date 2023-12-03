@@ -22,3 +22,4 @@ This is currently a work in progress right now, but from testing it works so far
 - add option to pick which corner to show overlay
 - add option to hide overlay when replay buffer is off
 - add window name blacklist
+- put replays in their own game's folders
