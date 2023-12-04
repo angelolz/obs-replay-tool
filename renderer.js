@@ -6,4 +6,6 @@ ipcRenderer.on('change-image', (event, state) => {
       icon.src = 'img/on.png'
     else
       icon.src = 'img/off.png'
+
+    ipcRenderer.send('change-tray', state);
   });

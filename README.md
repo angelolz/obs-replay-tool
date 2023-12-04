@@ -13,6 +13,10 @@ This is currently a work in progress right now, but from testing it works so far
     WEBSOCKET_PORT=""
     WEBSOCKET_PASSWORD=""
     gameCaptureSourceName=""
+
+    # comma separated
+   blacklist="" 
+   showOverlay=""
    ```
    - `gameCaptureSourceName` is the name of the Audio Application Capture Source in OBS that you want to automatically update based on your active window.
 4. Run `electron.js`.
@@ -20,6 +24,5 @@ This is currently a work in progress right now, but from testing it works so far
 
 # TODO
 - add option to pick which corner to show overlay
-- add option to hide overlay when replay buffer is off
-- add window name blacklist
 - put replays in their own game's folders
+- improve active window detection
