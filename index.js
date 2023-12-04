@@ -85,7 +85,7 @@ function setupBlacklist() {
 }
 
 function connect() {
-    obs.connect(`${process.env.WEBSOCKET_URL}:${process.env.WEBSOCKET_PORT}`, process.env.WEBSOCKET_PASSWORD)
+    obs.connect(`ws://${process.env.WEBSOCKET_IP}:${process.env.WEBSOCKET_PORT}`, process.env.WEBSOCKET_PASSWORD)
     .then(() => {
         console.log("OBS is connected!");
         if(reconnect != null) clearInterval(reconnect);

@@ -9,17 +9,19 @@ This is currently a work in progress right now, but from testing it works so far
 2. Install dependencies: `npm i`
 3. Create a `.env` file with these properties:
    ```
-   WEBSOCKET_URL=""
-    WEBSOCKET_PORT=""
-    WEBSOCKET_PASSWORD=""
-    gameCaptureSourceName=""
+   WEBSOCKET_IP="127.0.0.1"
+   WEBSOCKET_PORT=""
+   WEBSOCKET_PASSWORD=""
+   gameCaptureSourceName=""
 
-    # comma separated
+   # comma separated
    blacklist="" 
    showOverlay=""
    ```
    - `gameCaptureSourceName` is the name of the Audio Application Capture Source in OBS that you want to automatically update based on your active window.
-4. Run `electron.js`.
+   - `blacklist` is the list of programs that you want the tool to ignore.
+   - `showOverlay` (must be set to `"true"` or `"false"`) toggles the replay buffer status overlay. (You can always see the status using the tray icon)
+4. Run `electron index.js` in the terminal.
 5. You should see a "🔁" icon in the bottom left corner of your screen if your replay is on, and a "🔁 + ❌" icon when it is off.
 
 # TODO
