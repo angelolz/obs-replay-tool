@@ -3,11 +3,20 @@ body {
     overflow: hidden;
 }
 
-#icon {
+.container {
     position: absolute;
     bottom: 5;
-    left: 5;
+    right: 5;
+
+}
+
+.icon {
     width: 25px;
     height: 25px;
     opacity: 0.65;
+}
+
+#saved {
+    opacity: 0;
+    transition: opacity 1s ease;
 }
