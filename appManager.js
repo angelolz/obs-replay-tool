@@ -35,12 +35,12 @@ function createTray() {
 
 //overlay function
 function createWindow() {
-    const SET_WIDTH = 70, SET_HEIGHT = 35;
+    const SET_WIDTH = 125, SET_HEIGHT = 55;
     mainWindow = new BrowserWindow({
         width: SET_WIDTH,
         height: SET_HEIGHT,
         autoHideMenuBar: true,
-        maxHeight: 100, minHeight: 100,
+        maxHeight: SET_WIDTH, minHeight: SET_HEIGHT,
         resizable: false,
         transparent: true,
         frame: false,

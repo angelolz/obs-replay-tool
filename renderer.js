@@ -15,6 +15,11 @@ ipcRenderer.on('saved-success', (event, state) => {
   showAndFade();
 });
 
+ipcRenderer.on("change-active", (event, text) => {
+  const element = document.getElementById("title");
+  element.innerText = text;
+})
+
 function resetElement() {
   const element = document.getElementById('saved');
   element.style.opacity = '1';

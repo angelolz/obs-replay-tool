@@ -22,10 +22,8 @@ function init() {
 
     obs.on("ReplayBufferSaved", () => {
         console.log("saved");
-        if(appManager.getMainWindow() != null) {
-            console.log("calling saved-success");
+        if(appManager.getMainWindow() != null)
             appManager.getMainWindow().webContents.send('saved-success');
-        }
     });
 }
 
@@ -67,11 +65,14 @@ function update() {
 }
 
 async function updateActiveWindow() {
+    const getInputSettingsRes = await obs.call("GetInputSettings", {inputName: process.env.gameCaptureSourceName})
+    if(appManager.getMainWindow() != null)
+        appManager.getMainWindow().webContents.send('change-active', getInputSettingsRes.inputSettings.window);
+    
     if(!connected) return;
 
     //check if active window is the same
     var activeWindowInfo = activeWindow.sync();
-    const getInputSettingsRes = await obs.call("GetInputSettings", {inputName: process.env.gameCaptureSourceName})
     var isSame = getInputSettingsRes.inputSettings.window.indexOf(activeWindowInfo.owner.name) >= 0
 
     if(isSame) return;
@@ -94,7 +95,9 @@ async function updateActiveWindow() {
 
         let val =  getItemsRes.propertyItems[index].itemValue;
         await obs.call("SetInputSettings", {inputName: process.env.gameCaptureSourceName, inputSettings: {window: val}})
+        
         console.log("changed audio settings to: ", val)
+
     }
 }
 
