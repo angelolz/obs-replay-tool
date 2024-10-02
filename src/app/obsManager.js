@@ -7,7 +7,7 @@ const obs = new OBSWebSocket();
 let connected = false;
 let tasks = null;
 let reconnect = null;
-let blacklist;
+var lastActiveWindow = null;
 let attemptedReconnect = false;
 
 function init() {
@@ -80,7 +80,8 @@ async function updateActiveWindow() {
 
     //check if active window is the same
     var activeWindowInfo = activeWindow.sync();
-    var isSame = getInputSettingsRes.inputSettings.window.indexOf(activeWindowInfo.owner.name) >= 0
+    var isSame = (lastActiveWindow != null && lastActiveWindow === activeWindowInfo.owner.name) || getInputSettingsRes.inputSettings.window.indexOf(activeWindowInfo.owner.name) >= 0;
+    lastActiveWindow = activeWindowInfo.owner.name;
 
     if(isSame) return;
 
@@ -91,10 +92,10 @@ async function updateActiveWindow() {
     var index = getItemsRes.propertyItems.findIndex(item => item.itemName.indexOf(activeWindowInfo.owner.name) >= 0);
 
     if(index >= 0) {
-        // if(blacklist.findIndex(item => item.indexOf(getItemsRes.propertyItems[index].itemValue)) >= 0) {
-        //     console.log("program is blacklisted, skipping")
-        //     return;
-        // }
+        if(config.blacklist.some(item => item.indexOf(getItemsRes.propertyItems[index].itemValue))) {
+            console.log(lastActiveWindow + " is blacklisted, skipping")
+            return;
+        }
 
         console.log("window is different, changing...");
         console.log("     active window: ", activeWindowInfo.owner.name);
