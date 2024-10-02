@@ -1,5 +1,6 @@
 const OBSWebSocket = require('obs-websocket-js').default;
 const appManager = require('./appManager');
+const configManager = require('./configManager');
 const activeWindow = require('active-win');
 
 const obs = new OBSWebSocket();
@@ -10,7 +11,6 @@ let blacklist;
 let attemptedReconnect = false;
 
 function init() {
-    setupBlacklist();
     connect();
 
     obs.on("ExitStarted", () => {
@@ -21,19 +21,23 @@ function init() {
     });
 
     obs.on("ReplayBufferSaved", () => {
-        console.log("saved");
         if(appManager.getMainWindow() != null)
             appManager.getMainWindow().webContents.send('saved-success');
     });
-}
 
-function setupBlacklist() {
-    blacklist = process.env.blacklist.split(",").filter((e) => e.length > 0);
-    console.log("Loaded blacklist,", blacklist.length, "items loaded.");
+    obs.on("InputSettingsChanged", (event) => {
+        console.log("inputsettingschanged");
+        console.log(event.inputSettings);
+        if(event.inputName !== configManager.getConfig().gameCaptureSourceName) return;
+
+        // if(appManager.getMainWindow() != null)
+        //     appManager.getMainWindow().webContents.send('change-active', getInputSettingsRes.inputSettings.window);
+    });
 }
 
 function connect() {
-    obs.connect(`ws://${process.env.WEBSOCKET_IP}:${process.env.WEBSOCKET_PORT}`, process.env.WEBSOCKET_PASSWORD)
+    var websocketConfig = configManager.getConfig().websocket;
+    obs.connect(`ws://${websocketConfig.ip}:${websocketConfig.port}`, websocketConfig.password)
     .then(() => {
         attemptedReconnect = false;
         console.log("OBS is connected!");
@@ -60,12 +64,15 @@ function connect() {
 function update() {
     if(connected) {   
         updateActiveWindow();
-        updateReplayStatus()
+        updateReplayStatus();
     }
 }
 
 async function updateActiveWindow() {
-    const getInputSettingsRes = await obs.call("GetInputSettings", {inputName: process.env.gameCaptureSourceName})
+    let config = configManager.getConfig();
+    if(config.updateActiveWindow !== true) return;
+
+    const getInputSettingsRes = await obs.call("GetInputSettings", {inputName: config.gameCaptureSourceName})
     if(appManager.getMainWindow() != null)
         appManager.getMainWindow().webContents.send('change-active', getInputSettingsRes.inputSettings.window);
     
@@ -78,7 +85,7 @@ async function updateActiveWindow() {
     if(isSame) return;
 
     //change window
-    const getItemsRes = await obs.call("GetInputPropertiesListPropertyItems", {inputName: process.env.gameCaptureSourceName, propertyName: "window"})
+    const getItemsRes = await obs.call("GetInputPropertiesListPropertyItems", {inputName: config.gameCaptureSourceName, propertyName: "window"})
     // console.log(activeWindowInfo);
     // console.log(getItemsRes.propertyItems);
     var index = getItemsRes.propertyItems.findIndex(item => item.itemName.indexOf(activeWindowInfo.owner.name) >= 0);
@@ -94,7 +101,7 @@ async function updateActiveWindow() {
         console.log("     current: ", getInputSettingsRes.inputSettings.window);
 
         let val =  getItemsRes.propertyItems[index].itemValue;
-        await obs.call("SetInputSettings", {inputName: process.env.gameCaptureSourceName, inputSettings: {window: val}})
+        await obs.call("SetInputSettings", {inputName: config.gameCaptureSourceName, inputSettings: {window: val}})
         
         console.log("changed audio settings to: ", val)
 

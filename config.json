@@ -1,0 +1,11 @@
+{
+  "websocket": {
+    "ip": "127.0.0.1",
+    "port": 4455,
+    "password": "hB7nPdcQTxzqz8W3"
+  },
+  "gameCaptureSourceName": "Game Audio Capture",
+  "updateActiveWindow": false,
+  "showOverlay": true,
+  "blacklist": []
+}
