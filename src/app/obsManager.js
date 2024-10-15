@@ -71,11 +71,14 @@ async function updateActiveWindow() {
 
     //check if active window is the same
     let activeWindowInfo = activeWindow.sync();
+    if(activeWindowInfo.owner === null) return;
+    
     let activeApplicationName = getApplicationName(activeWindowInfo.owner.path, "\\");
     let currentApplicationName = getApplicationName(getInputSettingsRes.inputSettings.window, ":");
+    if (isSame(activeApplicationName, currentApplicationName)) return;
     lastActiveWindow = activeApplicationName;
 
-    if (isSame(activeApplicationName, currentApplicationName)) return;
+    
 
     const getItemsRes = await obs.call("GetInputPropertiesListPropertyItems", {
         inputName: config.gameCaptureSourceName,
