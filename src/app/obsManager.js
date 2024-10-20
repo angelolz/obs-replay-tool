@@ -71,7 +71,7 @@ async function updateActiveWindow() {
 
     //check if active window is the same
     let activeWindowInfo = activeWindow.sync();
-    if(activeWindowInfo.owner === null) return;
+    if(activeWindowInfo === null) return;
     
     let activeApplicationName = getApplicationName(activeWindowInfo.owner.path, "\\");
     let currentApplicationName = getApplicationName(getInputSettingsRes.inputSettings.window, ":");
