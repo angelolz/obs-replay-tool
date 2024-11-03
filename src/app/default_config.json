@@ -7,5 +7,6 @@
     "gameCaptureSourceName": "Game Audio Capture",
     "updateActiveWindow": true,
     "showOverlay": true,
-    "blacklist": []
+    "blacklist": [],
+    "isDebug": false
 }

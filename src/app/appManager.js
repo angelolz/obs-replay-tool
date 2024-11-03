@@ -1,19 +1,20 @@
 const { app, BrowserWindow, screen, ipcMain, Tray, Menu } = require("electron");
 const configManager = require("./configManager");
+const { Logger, LogLevel } = require('../logger/logger');
 
 let tray;
 let mainWindow = null;
 
 function init() {
-    console.log("Initializing app...");
+    
+    Logger.log(LogLevel.INFO, "Initializing app...");
 
     app.whenReady().then(() => {
         createTray();
-        if (configManager.getConfig().showOverlay === true) createWindow();
+        if (configManager.getConfig().showOverlay === true)
+            createWindow();
         else
-            console.log(
-                "Overlay is disabled, you can see Replay Buffer status using the tray icon."
-            );
+            Logger.log(LogLevel.WARN, "Overlay is disabled, you can see Replay Buffer status using the tray icon.");
     });
 
     app.on("window-all-closed", function () {
@@ -48,6 +49,16 @@ function createTray() {
             click: (menuItem) => {
                 var config = configManager.getConfig();
                 config.updateActiveWindow = menuItem.checked;
+                configManager.saveConfig(config);
+            },
+        },
+        {
+            label: "Show Debug Messages",
+            type: "checkbox",
+            checked: configManager.getConfig().isDebug,
+            click: (menuItem) => {
+                var config = configManager.getConfig();
+                config.isDebug = menuItem.checked;
                 configManager.saveConfig(config);
             },
         },

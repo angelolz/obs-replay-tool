@@ -2,6 +2,7 @@ const OBSWebSocket = require("obs-websocket-js").default;
 const appManager = require("./appManager");
 const configManager = require("./configManager");
 const activeWindow = require("active-win");
+const { Logger, LogLevel } = require('../logger/logger');
 
 const obs = new OBSWebSocket();
 let connected = false;
@@ -16,7 +17,7 @@ function init() {
     obs.on("ExitStarted", () => {
         connected = false;
         if (tasks != null) clearInterval(tasks);
-        console.log("OBS shutting down... Attempting to reconnect...");
+        Logger.log(LogLevel.INFO, "OBS shutting down... Attempting to reconnect...");
         reconnect = setInterval(() => connect(), 1000);
     });
 
@@ -33,7 +34,7 @@ function connect() {
             if (reconnect != null) clearInterval(reconnect);
             connected = true;
             tasks = setInterval(() => update(), 1000);
-            console.log("OBS is connected!");
+            Logger.log(LogLevel.INFO, "OBS is connected!");
         })
         .catch(() => {
             connected = false;
@@ -85,19 +86,19 @@ async function updateActiveWindow() {
         propertyName: "window",
     });
 
-    // console.log(activeWindowInfo);
-    // console.log(getItemsRes.propertyItems);
+    Logger.log(LogLevel.DEBUG, activeWindowInfo);
+    Logger.log(LogLevel.DEBUG, getItemsRes.propertyItems);
 
     var index = getItemsRes.propertyItems.findIndex((item) => item.itemName.indexOf(activeApplicationName) >= 0);
     if (index < 0) return;
 
     var matchingAppName = getApplicationName(getItemsRes.propertyItems[index].itemValue, ":");
     if (config.blacklist.some((item) => item === matchingAppName)) {
-        // console.log(lastActiveWindow + " is blacklisted, skipping");
+        Logger.log(LogLevel.DEBUG, lastActiveWindow + " is blacklisted, skipping");
         return;
     }
 
-    console.log(`changing audio: ${currentApplicationName} -> ${activeApplicationName}`);
+    Logger.log(LogLevel.INFO, `changing audio: ${currentApplicationName} -> ${activeApplicationName}`);
 
     let val = getApplicationName(getItemsRes.propertyItems[index].itemValue, ":").replace(".exe", "");
     await obs.call("SetInputSettings", {
@@ -106,7 +107,7 @@ async function updateActiveWindow() {
     });
 
     if (appManager.getMainWindow() != null) appManager.getMainWindow().webContents.send("change-active", val);
-    console.log("   changed audio settings to: ", val);
+    Logger.log(LogLevel.INFO, "   changed audio settings to: " + val);
 }
 
 async function updateReplayStatus() {
