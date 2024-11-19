@@ -6,16 +6,13 @@ const defaultConfigPath = "./src/app/default_config.json";
 let config;
 
 function init() {
-    const absolutePath = path.resolve(defaultConfigPath);
-    console.log(absolutePath);
-    console.log("loading config...");
     loadConfig();
 }
 
 function loadConfig() {
     
     if (fs.existsSync(configFilePath)) {
-        console.log("using existing config!");
+        console.log("Using existing config: " + path.resolve(configFilePath));
         const rawData = fs.readFileSync(configFilePath);
         config = JSON.parse(rawData);
     } else if (fs.existsSync(defaultConfigPath)) {

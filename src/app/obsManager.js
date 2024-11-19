@@ -2,7 +2,7 @@ const OBSWebSocket = require("obs-websocket-js").default;
 const appManager = require("./appManager");
 const configManager = require("./configManager");
 const activeWindow = require("active-win");
-const { Logger, LogLevel } = require('../logger/logger');
+const { Logger, LogLevel } = require("../logger/logger");
 
 const obs = new OBSWebSocket();
 let connected = false;
@@ -43,7 +43,7 @@ function connect() {
 
             if (!attemptedReconnect) {
                 attemptedReconnect = true;
-                console.error("Failed to connect to OBS, retrying...");
+                Logger.log(LogLevel.ERROR, "Failed to connect to OBS, retrying...");
             }
 
             if (reconnect == null) reconnect = setInterval(() => connect(), 1000);
@@ -61,7 +61,7 @@ async function updateActiveWindow() {
     let config = configManager.getConfig();
     if (!connected || config.updateActiveWindow !== true) return;
 
-    const getInputSettingsRes = await obs.call("GetInputSettings", { inputName: config.gameCaptureSourceName });
+    const getInputSettingsRes = await obs.call("GetInputSettings", { inputName: config.gameCaptureSourceName }).catch(err => {Logger.log(LogLevel.ERROR, err)});
     if (appManager.getMainWindow() != null)
         appManager
             .getMainWindow()
@@ -72,22 +72,20 @@ async function updateActiveWindow() {
 
     //check if active window is the same
     let activeWindowInfo = activeWindow.sync();
-    if(activeWindowInfo === null) return;
-    
+    if (activeWindowInfo === null) return;
+
     let activeApplicationName = getApplicationName(activeWindowInfo.owner.path, "\\");
     let currentApplicationName = getApplicationName(getInputSettingsRes.inputSettings.window, ":");
     if (isSame(activeApplicationName, currentApplicationName)) return;
     lastActiveWindow = activeApplicationName;
-
-    
 
     const getItemsRes = await obs.call("GetInputPropertiesListPropertyItems", {
         inputName: config.gameCaptureSourceName,
         propertyName: "window",
     });
 
-    Logger.log(LogLevel.DEBUG, activeWindowInfo);
-    Logger.log(LogLevel.DEBUG, getItemsRes.propertyItems);
+    Logger.log(LogLevel.DEBUG, "activeWindowInfo: " + JSON.stringify(activeWindowInfo, null, 2));
+    Logger.log(LogLevel.DEBUG, "propertyItems: " + JSON.stringify(getItemsRes.propertyItems, null, 2));
 
     var index = getItemsRes.propertyItems.findIndex((item) => item.itemName.indexOf(activeApplicationName) >= 0);
     if (index < 0) return;
@@ -113,7 +111,7 @@ async function updateActiveWindow() {
 async function updateReplayStatus() {
     if (!connected) return;
 
-    var status = await obs.call("GetReplayBufferStatus");
+    var status = await obs.call("GetReplayBufferStatus").catch(err => {Logger.log(LogLevel.ERROR, err)});;
     if (appManager.getMainWindow() != null)
         appManager.getMainWindow().webContents.send("change-image", status.outputActive);
 }
