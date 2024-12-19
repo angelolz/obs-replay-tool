@@ -95,6 +95,7 @@ function createWindow() {
         },
         focusable: false,
         alwaysOnTop: true,
+        skipTaskbar: true
     });
 
     const { width: screenWidth, height: screenHeight } =
@@ -106,6 +107,7 @@ function createWindow() {
     mainWindow.loadFile("./src/overlay/index.html");
 
     setInterval(() => mainWindow.show(), 60000); //just incase the overlay isn't on top for some reason
+    setInterval(() => mainWindow.setSkipTaskbar(true), 60000); //if explorer restarts, this stops it from showing back into the taskbar
 }
 
 function getMainWindow() {
