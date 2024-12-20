@@ -5,14 +5,10 @@ const eventBus = require("./eventEmitter");
 let tray = null;
 
 function init() {
-    app.whenReady().then(() => {
-        createTray();
-    })
-
+    createTray();
     ipcMain.on("change-tray", (event, state) => {
         tray.setImage(state ? "img/on.png" : "img/off.png");
     });
-
     eventBus.on("update-tray-menu", updateTrayMenu);
 }
 
@@ -23,18 +19,21 @@ function createTray() {
 }
 
 function updateTrayMenu() {
+    const config = configManager.getConfig();
     const context = Menu.buildFromTemplate([
         {
             label: "Show Overlay",
             type: "checkbox",
-            checked: configManager.getConfig().showOverlay,
+            checked: config.showOverlay,
             click: (menuItem) => {
-                var config = configManager.getConfig();
                 config.showOverlay = menuItem.checked;
                 configManager.saveConfig(config);
 
-                if (menuItem.checked) overlayWindow.show();
-                else overlayWindow.hide();
+                if (menuItem.checked && overlayWindow) {
+                    overlayWindow.show(); 
+                } else if (overlayWindow) {
+                    overlayWindow.hide();
+                }
             },
         },
         {
@@ -42,7 +41,6 @@ function updateTrayMenu() {
             type: "checkbox",
             checked: configManager.getConfig().updateActiveWindow,
             click: (menuItem) => {
-                var config = configManager.getConfig();
                 config.updateActiveWindow = menuItem.checked;
                 configManager.saveConfig(config);
             },
@@ -52,7 +50,6 @@ function updateTrayMenu() {
             type: "checkbox",
             checked: configManager.getConfig().isDebug,
             click: (menuItem) => {
-                var config = configManager.getConfig();
                 config.isDebug = menuItem.checked;
                 configManager.saveConfig(config);
             },
@@ -62,21 +59,21 @@ function updateTrayMenu() {
             type: "checkbox",
             checked: configManager.getConfig().showLogs,
             click: (menuItem) => {
-                var config = configManager.getConfig();
                 config.showLogs = menuItem.checked;
                 configManager.saveConfig(config);
 
-                if (menuItem.checked) eventBus.emit("open-log-window");
-                else eventBus.emit("close-log-window");
+                if (menuItem.checked) {
+                    eventBus.emit("open-log-window");
+                } else {
+                    eventBus.emit("close-log-window");
+                }
             },
         },
         { type: "separator" },
         {
             label: "Quit",
             type: "normal",
-            click: () => {
-                app.quit();
-            },
+            click: () => { app.quit();},
         },
     ]);
 

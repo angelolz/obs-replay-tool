@@ -3,13 +3,16 @@ const obsManager = require('./src/app/obsManager');
 const appManager = require('./src/app/appManager');
 const loggerManager = require('./src/app/loggerManager');
 const trayManager = require('./src/app/trayManager');
+const { app } = require('electron');
 
 try {
-    configManager.init();
-    obsManager.init();
-    appManager.init();
-    trayManager.init();
-    loggerManager.init();
+    app.whenReady().then(() => {
+        configManager.init();
+        obsManager.init();
+        appManager.init();
+        trayManager.init();
+        loggerManager.init();
+    })
 }
 
 catch(err) {

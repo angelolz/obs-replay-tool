@@ -23,13 +23,19 @@ function createLogWindow() {
         return;
     }
 
-    const SET_WIDTH = 600, SET_HEIGHT = 300;
-    const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize;
+    const SET_WIDTH = 900, SET_HEIGHT = 450;
+    const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().size;
+    const x = Math.round((screenWidth - SET_WIDTH) / 2);
+    const y = Math.round((screenHeight - SET_HEIGHT) / 2)
+    addLog(LogLevel.DEBUG, `width: ${screenWidth} | height: ${screenHeight} | x = ${x} | y = ${y}`);
+
     loggerWindow = new BrowserWindow({
         minWidth: SET_WIDTH,
         minHeight: SET_HEIGHT,
-        x: Math.round((screenWidth - SET_WIDTH) / 2),
-        y: Math.round((screenHeight - SET_HEIGHT) / 2),
+        width: SET_WIDTH,
+        height: SET_HEIGHT,
+        x: x,
+        y: y,
         autoHideMenuBar: true,
         resizable: true,
         frame: true,
@@ -73,21 +79,35 @@ function addLog(level, message) {
         return;
     }
 
-    if (LogLevel.DEBUG === level && configManager.getConfig() !== null && !configManager.getConfig().isDebug) {
+    const config = configManager.getConfig();
+    if (level === LogLevel.DEBUG && !config.isDebug) {
         return;
     }
 
-    const now = new Date();
-    const timeString = now.toLocaleTimeString(undefined, { hour12: false, hourCycle: 'h23' });
-    let logMessage = `[${timeString}] [${level}] ${message}`;
+    const logMessage = formatLogMessage(level, message);
     console.log(logMessage);
-
     logBuffer.push(logMessage);
     if (logBuffer.length > 100) logBuffer.shift();
 
+    updateLogWindow();
+}
+
+function formatLogMessage(level, message) {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString(undefined, { hour12: false, hourCycle: 'h23' });
+    return `[${timeString}] [${level}] ${message}`;
+}
+
+function updateLogWindow() {
     if (loggerWindow && !loggerWindow.isDestroyed()) {
         loggerWindow.webContents.send('update-logs', logBuffer);
     }
 }
+
+function logDebugMessage(message) {
+    addLog(LogLevel.DEBUG, message);
+}
+
+
 
 module.exports = { init, createLogWindow, closeLogWindow, addLog };
