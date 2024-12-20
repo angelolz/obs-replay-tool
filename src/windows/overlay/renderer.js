@@ -4,9 +4,9 @@ let showTimeout, resetTimeout;
 ipcRenderer.on('change-image', (event, state) => {
     const icon = document.getElementById("status");
     if (state === true)
-      icon.src = '../../img/on.png'
+      icon.src = '../../../img/on.png'
     else
-      icon.src = '../../img/off.png'
+      icon.src = '../../../img/off.png'
 
     ipcRenderer.send('change-tray', state);
 });

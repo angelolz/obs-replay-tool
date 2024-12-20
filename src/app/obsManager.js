@@ -1,8 +1,9 @@
 const OBSWebSocket = require("obs-websocket-js").default;
 const appManager = require("./appManager");
 const configManager = require("./configManager");
+const loggerManager = require("./loggerManager");
 const activeWindow = require("active-win");
-const { Logger, LogLevel } = require("../logger/logger");
+const { LogLevel } = require("../logger/logLevel");
 
 const obs = new OBSWebSocket();
 let connected = false;
@@ -17,12 +18,12 @@ function init() {
     obs.on("ExitStarted", () => {
         connected = false;
         if (tasks != null) clearInterval(tasks);
-        Logger.log(LogLevel.INFO, "OBS shutting down... Attempting to reconnect...");
+        loggerManager.addLog(LogLevel.INFO, "OBS shutting down... Attempting to reconnect...");
         reconnect = setInterval(() => connect(), 1000);
     });
 
     obs.on("ReplayBufferSaved", () => {
-        if (appManager.getMainWindow() != null) appManager.getMainWindow().webContents.send("saved-success");
+        if (appManager.getOverlayWindow() != null) appManager.getOverlayWindow().webContents.send("saved-success");
     });
 }
 
@@ -34,16 +35,16 @@ function connect() {
             if (reconnect != null) clearInterval(reconnect);
             connected = true;
             tasks = setInterval(() => update(), 1000);
-            Logger.log(LogLevel.INFO, "OBS is connected!");
+            loggerManager.addLog(LogLevel.INFO, "OBS is connected!");
         })
         .catch(() => {
             connected = false;
 
-            if (appManager.getMainWindow() != null) appManager.getMainWindow().webContents.send("change-image", false);
+            if (appManager.getOverlayWindow() != null) appManager.getOverlayWindow().webContents.send("change-image", false);
 
             if (!attemptedReconnect) {
                 attemptedReconnect = true;
-                Logger.log(LogLevel.ERROR, "Failed to connect to OBS, retrying...");
+                loggerManager.addLog(LogLevel.ERROR, "Failed to connect to OBS, retrying...");
             }
 
             if (reconnect == null) reconnect = setInterval(() => connect(), 1000);
@@ -61,10 +62,10 @@ async function updateActiveWindow() {
     let config = configManager.getConfig();
     if (!connected || config.updateActiveWindow !== true) return;
 
-    const getInputSettingsRes = await obs.call("GetInputSettings", { inputName: config.gameCaptureSourceName }).catch(err => {Logger.log(LogLevel.ERROR, err)});
-    if (appManager.getMainWindow() != null)
+    const getInputSettingsRes = await obs.call("GetInputSettings", { inputName: config.gameCaptureSourceName }).catch(err => {loggerManager.addLog(LogLevel.ERROR, err)});
+    if (appManager.getOverlayWindow() != null)
         appManager
-            .getMainWindow()
+            .getOverlayWindow()
             .webContents.send(
                 "change-active",
                 getApplicationName(getInputSettingsRes.inputSettings.window, ":").replace(".exe", "")
@@ -84,19 +85,19 @@ async function updateActiveWindow() {
         propertyName: "window",
     });
 
-    Logger.log(LogLevel.DEBUG, "activeWindowInfo: " + JSON.stringify(activeWindowInfo, null, 2));
-    Logger.log(LogLevel.DEBUG, "propertyItems: " + JSON.stringify(getItemsRes.propertyItems, null, 2));
+    loggerManager.addLog(LogLevel.DEBUG, "activeWindowInfo: " + JSON.stringify(activeWindowInfo, null, 2));
+    loggerManager.addLog(LogLevel.DEBUG, "propertyItems: " + JSON.stringify(getItemsRes.propertyItems, null, 2));
 
     var index = getItemsRes.propertyItems.findIndex((item) => item.itemName.indexOf(activeApplicationName) >= 0);
     if (index < 0) return;
 
     var matchingAppName = getApplicationName(getItemsRes.propertyItems[index].itemValue, ":");
     if (config.blacklist.some((item) => item === matchingAppName)) {
-        Logger.log(LogLevel.DEBUG, lastActiveWindow + " is blacklisted, skipping");
+        loggerManager.addLog(LogLevel.DEBUG, lastActiveWindow + " is blacklisted, skipping");
         return;
     }
 
-    Logger.log(LogLevel.INFO, `changing audio: ${currentApplicationName} -> ${activeApplicationName}`);
+    loggerManager.addLog(LogLevel.INFO, `changing audio: ${currentApplicationName} -> ${activeApplicationName}`);
 
     let val = getApplicationName(getItemsRes.propertyItems[index].itemValue, ":").replace(".exe", "");
     await obs.call("SetInputSettings", {
@@ -104,16 +105,16 @@ async function updateActiveWindow() {
         inputSettings: { window: getItemsRes.propertyItems[index].itemValue },
     });
 
-    if (appManager.getMainWindow() != null) appManager.getMainWindow().webContents.send("change-active", val);
-    Logger.log(LogLevel.INFO, "   changed audio settings to: " + val);
+    if (appManager.getOverlayWindow() != null) appManager.getOverlayWindow().webContents.send("change-active", val);
+    loggerManager.addLog(LogLevel.INFO, "   changed audio settings to: " + val);
 }
 
 async function updateReplayStatus() {
     if (!connected) return;
 
-    var status = await obs.call("GetReplayBufferStatus").catch(err => {Logger.log(LogLevel.ERROR, err)});;
-    if (appManager.getMainWindow() != null)
-        appManager.getMainWindow().webContents.send("change-image", status.outputActive);
+    var status = await obs.call("GetReplayBufferStatus").catch(err => {loggerManager.addLog(LogLevel.ERROR, err)});;
+    if (appManager.getOverlayWindow() != null)
+        appManager.getOverlayWindow().webContents.send("change-image", status.outputActive);
 }
 
 function getApplicationName(windowTitle, delimiter) {

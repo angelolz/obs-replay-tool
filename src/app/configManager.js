@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require('path');
 
 const configFilePath = "./config.json";
-const defaultConfigPath = "./src/app/default_config.json";
+const defaultConfigPath = "./src/app/config/default_config.json";
 let config;
 
 function init() {

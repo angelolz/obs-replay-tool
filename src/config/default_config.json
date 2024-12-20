@@ -8,5 +8,6 @@
     "updateActiveWindow": true,
     "showOverlay": true,
     "blacklist": [],
-    "isDebug": false
+    "isDebug": false,
+    "showLogs": false
 }

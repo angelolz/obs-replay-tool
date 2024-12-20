@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logs</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #2c2c2c;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* Ensures full screen height */
+            box-sizing: border-box;
+            padding: 20px; /* Consistent margins */
+        }
+        .log-container {
+            background-color: #000000;
+            padding: 20px;
+            width: 100%;
+            max-width: 800px;
+            height: calc(100vh - 40px); /* Adjust height to fill the window minus margins */
+            box-sizing: border-box; /* Prevent padding from affecting height */
+            overflow-y: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+        .log-container::-webkit-scrollbar {
+            width: 10px;
+        }
+        .log-container::-webkit-scrollbar-thumb {
+            background: #444;
+            border-radius: 5px;
+        }
+        .log-container::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        .log-line {
+            white-space: pre-wrap;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="log-container" id="logContainer">
+        <!-- Logs will be dynamically inserted here -->
+    </div>
+    <script>
+        // Receive logs from Electron
+        const { ipcRenderer } = require('electron');
+
+        ipcRenderer.on('update-logs', (event, logs) => {
+            const logContainer = document.getElementById('logContainer');
+            logContainer.innerHTML = ''; // Clear previous logs
+            logs.forEach(log => {
+                const logLine = document.createElement('div');
+                logLine.textContent = log;
+                logLine.className = 'log-line';
+                logContainer.appendChild(logLine);
+            });
+            logContainer.scrollTop = logContainer.scrollHeight; // Auto-scroll to bottom
+        });
+    </script>
+</body>
+</html>
