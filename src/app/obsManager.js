@@ -4,6 +4,7 @@ const configManager = require("./configManager");
 const loggerManager = require("./loggerManager");
 const activeWindow = require("active-win");
 const { LogLevel } = require("../logger/logLevel");
+const eventBus = require("./eventEmitter");
 
 const obs = new OBSWebSocket();
 let connected = false;
@@ -158,9 +159,11 @@ async function updateReplayStatus() {
     if (!connected) return;
 
     const status = await fetchReplayStatus();
+    eventBus.emit("update-tray-image", status.outputActive);
     if (status && appManager.getOverlayWindow() != null) {
         appManager.getOverlayWindow().webContents.send("change-image", status.outputActive);
     }
+
 }
 
 async function fetchReplayStatus() {

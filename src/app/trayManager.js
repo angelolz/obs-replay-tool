@@ -1,4 +1,4 @@
-const { app, ipcMain, Tray, Menu } = require("electron");
+const { app, Tray, Menu } = require("electron");
 const configManager = require("./configManager");
 const eventBus = require("./eventEmitter");
 
@@ -6,10 +6,15 @@ let tray = null;
 
 function init() {
     createTray();
-    ipcMain.on("change-tray", (event, state) => {
+    eventBus.on("update-tray-image", (state) => {
         tray.setImage(state ? "img/on.png" : "img/off.png");
     });
     eventBus.on("update-tray-menu", updateTrayMenu);
+    app.on('window-all-closed', (event) => {
+        if (process.platform !== 'darwin' && tray) {
+          event.preventDefault(); // Prevent default quit behavior [1, 2, 3]
+        }
+    });
 }
 
 function createTray() {
@@ -29,10 +34,10 @@ function updateTrayMenu() {
                 config.showOverlay = menuItem.checked;
                 configManager.saveConfig(config);
 
-                if (menuItem.checked && overlayWindow) {
-                    overlayWindow.show(); 
-                } else if (overlayWindow) {
-                    overlayWindow.hide();
+                if (menuItem.checked) {
+                    eventBus.emit('show-overlay');
+                } else {
+                    eventBus.emit('hide-overlay');
                 }
             },
         },

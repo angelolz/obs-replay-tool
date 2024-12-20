@@ -2,6 +2,7 @@ const { app, BrowserWindow, screen } = require("electron");
 const configManager = require("./configManager");
 const loggerManager = require("./loggerManager");
 const { LogLevel } = require("../logger/logLevel");
+const eventBus = require("./eventEmitter");
 
 let overlayWindow = null;
 
@@ -12,10 +13,14 @@ function init() {
     if (configManager.getConfig().showOverlay === true)
         createOverlay();
     else
-        loggerManager.addLog(LogLevel.WARN, "Overlay is disabled, you can see Replay Buffer status using the tray icon.");
+        loggerManager.addLog(LogLevel.WARNING, "Overlay is disabled, you can see Replay Buffer status using the tray icon.");
 
-    app.on("window-all-closed", function () {
-        if (process.platform !== "darwin") app.quit();
+    eventBus.on("hide-overlay", () => { if(overlayWindow && overlayWindow.isVisible()) overlayWindow.hide() });
+    eventBus.on("show-overlay", () => { 
+        if(overlayWindow)
+            overlayWindow.show();
+        else 
+            createOverlay();
     });
 }
 

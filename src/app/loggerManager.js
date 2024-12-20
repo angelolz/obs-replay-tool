@@ -58,7 +58,9 @@ function createLogWindow() {
     });
 
     loggerWindow.loadFile('./src/windows/logger/logger.html');
-    loggerWindow.webContents.send('update-logs', logBuffer);
+    loggerWindow.webContents.once('did-finish-load', () => {
+        updateLogWindow();  // Send the logs once the window is fully loaded
+    });
 }
 
 function closeLogWindow() {
