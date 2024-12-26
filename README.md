@@ -1,4 +1,6 @@
-# OBS Replay Tool
+<p align="center"><img src="build/icon.png" alt="OBS Replay Tool icon made by quaddrro" width="256"/></p>
+<p align="center"><i>(icon made by <a align="center" href="https://www.youtube.com/@quaddrro" target="blank">quaddrro</a>!)</i></p>
+<h1 align="center">OBS Replay Tool</h1>
 
 This was made as a way for me to try and make OBS a good (maybe even better) alternative to GeForce Experience.
 I thought about doing this because of how much customization when using OBS's Replay Buffer tool instead of Instant Replay from GeForce Experience. For example, in OBS I can record up to 6 different audio tracks, as compared to GE's two tracks limitation. This allows me to separate game audio, mic audio, and Discord call audio.
@@ -58,4 +60,3 @@ You can find all the settings you want to change in the `config.json` file that'
 - probably make a first-time setup thing?
 - ui for changing settings instead of having to manually modify config.json
 - add option to pick which corner to show overlay
-- make a better app icon 😭😭😭😭

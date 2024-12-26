@@ -100,8 +100,8 @@ function handleConnectionSuccess() {
     //give some delay before starting to call obs requests
     setTimeout(() => {
         tasks = setInterval(update, 5000);
-    })
-   
+    });
+
     loggerManager.addLog(LogLevel.INFO, 'OBS is connected!');
 }
 
@@ -159,7 +159,8 @@ async function checkAndChangeActiveWindow(config, getInputSettingsRes) {
     let activeApplicationName = getApplicationName(activeWindowInfo.owner.path, '\\');
     let currentApplicationName = getApplicationName(getInputSettingsRes.inputSettings.window, ':');
 
-    if (isSame(activeApplicationName, currentApplicationName) || activeApplicationName.includes("OBSReplayTool.exe")) return;
+    if (isSame(activeApplicationName, currentApplicationName) || activeApplicationName.includes('OBSReplayTool.exe'))
+        return;
 
     lastActiveWindow = activeApplicationName;
 
@@ -203,16 +204,19 @@ async function changeOutputSettings(windowTitle) {
     const config = configManager.getConfig();
 
     let path = config.obs.baseOutputPath;
-    if(!path) {
-        path = app.getPath("videos");
+    if (!path) {
+        path = app.getPath('videos');
     } else {
-        if (path && path.endsWith('/') || path.endsWith('\\')) {
+        if ((path && path.endsWith('/')) || path.endsWith('\\')) {
             path = path.slice(0, -1);
-        } 
+        }
     }
-    
+
     loggerManager.addLog(LogLevel.DEBUG, `changing dir to ${path}/${formatApplicationName(windowTitle)}`);
-    loggerManager.addLog(LogLevel.DEBUG, `format is: ${formatApplicationName(windowTitle)} ${config.obs.filenameFormat}`);
+    loggerManager.addLog(
+        LogLevel.DEBUG,
+        `format is: ${formatApplicationName(windowTitle)} ${config.obs.filenameFormat}`
+    );
 
     await obs.call('SetOutputSettings', {
         outputName: 'Replay Buffer',
@@ -232,7 +236,7 @@ async function updateReplayStatus() {
     if (!connected) return;
 
     const status = await fetchReplayStatus();
-    if(status) {
+    if (status) {
         replayBufferEnabled = status.outputActive;
         eventBus.emit('update-tray-image', replayBufferEnabled);
         if (status && appManager.getOverlayWindow() != null) {

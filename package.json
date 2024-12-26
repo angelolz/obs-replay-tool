@@ -38,8 +38,7 @@
         ],
         "win": {
             "target": "portable",
-            "icon": "./icon.png",
-            
+            "icon": "./icon.png"
         }
     }
 }
