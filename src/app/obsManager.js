@@ -5,7 +5,7 @@ const loggerManager = require('./loggerManager');
 const activeWindow = require('active-win');
 const { LogLevel } = require('../logger/logLevel');
 const eventBus = require('./eventEmitter');
-const { powerMonitor } = require('electron');
+const { app, powerMonitor } = require('electron');
 
 const obs = new OBSWebSocket();
 let connected = false;
@@ -159,7 +159,7 @@ async function checkAndChangeActiveWindow(config, getInputSettingsRes) {
     let activeApplicationName = getApplicationName(activeWindowInfo.owner.path, '\\');
     let currentApplicationName = getApplicationName(getInputSettingsRes.inputSettings.window, ':');
 
-    if (isSame(activeApplicationName, currentApplicationName)) return;
+    if (isSame(activeApplicationName, currentApplicationName) || activeApplicationName.includes("OBSReplayTool.exe")) return;
 
     lastActiveWindow = activeApplicationName;
 
@@ -201,11 +201,16 @@ function formatApplicationName(windowTitle) {
 
 async function changeOutputSettings(windowTitle) {
     const config = configManager.getConfig();
-    let path = config.obs.baseOutputPath;
-    if (path.endsWith('/') || path.endsWith('\\')) {
-        path = path.slice(0, -1);
-    }
 
+    let path = config.obs.baseOutputPath;
+    if(!path) {
+        path = app.getPath("videos");
+    } else {
+        if (path && path.endsWith('/') || path.endsWith('\\')) {
+            path = path.slice(0, -1);
+        } 
+    }
+    
     loggerManager.addLog(LogLevel.DEBUG, `changing dir to ${path}/${formatApplicationName(windowTitle)}`);
     loggerManager.addLog(LogLevel.DEBUG, `format is: ${formatApplicationName(windowTitle)} ${config.obs.filenameFormat}`);
 

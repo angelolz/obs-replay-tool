@@ -1,8 +1,8 @@
 const fs = require('fs');
 const path = require('path');
-
-const configFilePath = './config.json';
-const defaultConfigPath = './src/config/default_config.json';
+const { app } = require('electron');
+const configFilePath = app.getPath("userData") + '/config.json';
+const defaultConfigPath = './default_config.json';
 let config = {};
 
 function init() {

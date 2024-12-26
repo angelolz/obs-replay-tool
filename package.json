@@ -28,9 +28,13 @@
         "files": [
             "src/**/*",
             "node_modules/**/*",
-            "img/**/*",
             "package.json",
-            "index.js"
+            "index.js",
+            "img/**/*"
+        ],
+        "extraFiles": [
+            "default_config.json",
+            "img/**/*"
         ],
         "win": {
             "target": "portable"

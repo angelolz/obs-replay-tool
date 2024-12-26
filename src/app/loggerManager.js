@@ -54,7 +54,7 @@ function createLogWindow() {
         eventBus.emit('update-tray-menu');
     });
 
-    loggerWindow.loadFile('./src/windows/logger/logger.html');
+    loggerWindow.loadFile('src/overlays/logger/logger.html');
     loggerWindow.webContents.once('did-finish-load', () => {
         updateLogWindow();
     });

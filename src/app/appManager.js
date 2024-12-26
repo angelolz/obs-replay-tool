@@ -52,7 +52,7 @@ function createOverlay() {
     });
 
     overlayWindow.setIgnoreMouseEvents(true);
-    overlayWindow.loadFile('./src/windows/overlay/index.html');
+    overlayWindow.loadFile('src/overlays/app/index.html');
 
     setInterval(() => {
         if (overlayWindow && !overlayWindow.isDestroyed()) {
