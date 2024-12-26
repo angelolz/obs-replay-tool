@@ -150,13 +150,19 @@ function formatApplicationName(windowTitle) {
 
 async function changeOutputSettings(windowTitle) {
     const config = configManager.getConfig();
-    console.log("changing dir to D:/Videos/" + formatApplicationName(windowTitle));
-    console.log("format is: " + formatApplicationName(windowTitle) + " %CCYY-%MM-%DD %hh-%mm-%ss");
+    let path = config.baseOutputPath;
+    if (path.endsWith('/') || path.endsWith('\\')) {
+        path = path.slice(0, -1);
+    }
+
+    console.log(`changing dir to ${path}/${formatApplicationName(windowTitle)}`);
+    console.log(`format is: ${formatApplicationName(windowTitle)} ${config.filenameFormat}`);
+    
     await obs.call("SetOutputSettings", {
         "outputName": "Replay Buffer",
         "outputSettings": {
-            "directory": "D:/Videos/" + formatApplicationName(windowTitle),
-            "format": formatApplicationName(windowTitle) + " %CCYY-%MM-%DD %hh-%mm-%ss"
+            "directory": `${path}/${formatApplicationName(windowTitle)}`,
+            "format": `${formatApplicationName(windowTitle)} ${config.filenameFormat}`
         }
     });
 }
@@ -174,7 +180,6 @@ async function updateReplayStatus() {
     if (status && appManager.getOverlayWindow() != null) {
         appManager.getOverlayWindow().webContents.send("change-image", status.outputActive);
     }
-
 }
 
 async function fetchReplayStatus() {

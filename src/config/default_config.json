@@ -5,6 +5,8 @@
         "password": ""
     },
     "gameCaptureSourceName": "Game Audio Capture",
+    "baseOutputPath": "",
+    "filenameFormat": "%CCYY-%MM-%DD %hh-%mm-%ss",
     "updateActiveWindow": true,
     "showOverlay": true,
     "blacklist": [
