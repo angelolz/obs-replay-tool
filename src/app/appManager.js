@@ -1,4 +1,4 @@
-const { app, BrowserWindow, screen } = require('electron');
+const { BrowserWindow, screen } = require('electron');
 const configManager = require('./configManager');
 const loggerManager = require('./loggerManager');
 const { LogLevel } = require('../logger/logLevel');
