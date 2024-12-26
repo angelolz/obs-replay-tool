@@ -58,3 +58,4 @@ You can find all the settings you want to change in the `config.json` file that'
 - probably make a first-time setup thing?
 - ui for changing settings instead of having to manually modify config.json
 - add option to pick which corner to show overlay
+- make a better app icon 😭😭😭😭

@@ -1,7 +1,7 @@
 {
     "name": "obs-replay-tool",
     "version": "1.0.0",
-    "description": "",
+    "description": "Nvidia Shadowplay-like overlay that shows OBS Replay Buffer Status with additional features.",
     "main": "index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
@@ -37,7 +37,9 @@
             "img/**/*"
         ],
         "win": {
-            "target": "portable"
+            "target": "portable",
+            "icon": "./icon.png",
+            
         }
     }
 }
