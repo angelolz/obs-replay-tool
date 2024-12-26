@@ -96,7 +96,12 @@ function handleConnectionSuccess() {
     attemptedReconnect = false;
     clearIntervalIfNeeded();
     connected = true;
-    tasks = setInterval(update, 1000);
+
+    //give some delay before starting to call obs requests
+    setTimeout(() => {
+        tasks = setInterval(update, 5000);
+    })
+   
     loggerManager.addLog(LogLevel.INFO, 'OBS is connected!');
 }
 
@@ -201,8 +206,8 @@ async function changeOutputSettings(windowTitle) {
         path = path.slice(0, -1);
     }
 
-    console.log(`changing dir to ${path}/${formatApplicationName(windowTitle)}`);
-    console.log(`format is: ${formatApplicationName(windowTitle)} ${config.obs.filenameFormat}`);
+    loggerManager.addLog(LogLevel.DEBUG, `changing dir to ${path}/${formatApplicationName(windowTitle)}`);
+    loggerManager.addLog(LogLevel.DEBUG, `format is: ${formatApplicationName(windowTitle)} ${config.obs.filenameFormat}`);
 
     await obs.call('SetOutputSettings', {
         outputName: 'Replay Buffer',
@@ -222,10 +227,12 @@ async function updateReplayStatus() {
     if (!connected) return;
 
     const status = await fetchReplayStatus();
-    replayBufferEnabled = status.outputActive;
-    eventBus.emit('update-tray-image', replayBufferEnabled);
-    if (status && appManager.getOverlayWindow() != null) {
-        appManager.getOverlayWindow().webContents.send('change-image', replayBufferEnabled);
+    if(status) {
+        replayBufferEnabled = status.outputActive;
+        eventBus.emit('update-tray-image', replayBufferEnabled);
+        if (status && appManager.getOverlayWindow() != null) {
+            appManager.getOverlayWindow().webContents.send('change-image', replayBufferEnabled);
+        }
     }
 }
 
