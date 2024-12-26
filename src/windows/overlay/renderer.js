@@ -24,14 +24,10 @@ function resetElement() {
 function showAndFade() {
     const element = document.getElementById('saved');
 
-    // Clear any existing timeouts
     clearTimeout(showTimeout);
     clearTimeout(resetTimeout);
 
-    // Reset the element's state
     resetElement();
-
-    // Start the animation
 
     showTimeout = setTimeout(() => {
         element.style.opacity = '0';

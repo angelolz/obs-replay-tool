@@ -40,7 +40,7 @@ You can find all the settings you want to change in the `config.json` file that'
 - OBS-related settings - `obs`
 
     - `gameCaptureSourceName`: The name of the **Application Audio Capture** source to modify settings of for focusing the capture towards the active application. (default: `"Game Audio Capture"`)
-      - Note: *you may want to **_edit this_** on first launch*.
+        - Note: _you may want to ***edit this*** on first launch_.
     - `baseOutputPath`: The base path to use for the Replay Buffer's output directory (default: the user's video directory if left blank)
     - `filenameFormat`: The format to use for the saved replay's file name. You can find more info [here](https://gist.github.com/angelolz/aaf55ce00a6aeba29552f250f1236831). (default: `%CCYY-%MM-%DD %hh-%mm-%ss`)
     - `turnOffReplayWhenIdle`: Disable Replay Buffer when your computer has been idle for a certain amount of time (based on the `idleTime` setting).

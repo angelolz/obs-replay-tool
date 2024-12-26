@@ -12,7 +12,7 @@ function init() {
     eventBus.on('update-tray-menu', updateTrayMenu);
     app.on('window-all-closed', (event) => {
         if (process.platform !== 'darwin' && tray) {
-            event.preventDefault(); // Prevent default quit behavior [1, 2, 3]
+            event.preventDefault();
         }
     });
 }
