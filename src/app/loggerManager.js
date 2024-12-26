@@ -57,7 +57,7 @@ function createLogWindow() {
 
     loggerWindow.loadFile('./src/windows/logger/logger.html');
     loggerWindow.webContents.once('did-finish-load', () => {
-        updateLogWindow();  // Send the logs once the window is fully loaded
+        updateLogWindow();
     });
 }
 
@@ -73,9 +73,15 @@ function closeLogWindow() {
 
 function addLog(level, message) {
     if (!LogLevel.isValid(level)) {
-        let errLog = `[INVALID LEVEL] ${level}: ${message}`
+        
+        let errLog = {
+            "timestamp": timeString,
+            "level": "INVALID LEVEL",
+            "message": message
+        };
         logBuffer.push(errLog);
-        console.error(errLog);
+
+        console.log(`[${errLog.timestamp}] [${errLog.level}] ${errLog.message}`);
         return;
     }
 
@@ -85,7 +91,7 @@ function addLog(level, message) {
     }
 
     const logMessage = formatLogMessage(level, message);
-    console.log(logMessage);
+    console.log(`[${logMessage.timestamp}] [${logMessage.level}] ${logMessage.message}`);
     logBuffer.push(logMessage);
     if (logBuffer.length > 100) logBuffer.shift();
 
@@ -95,7 +101,11 @@ function addLog(level, message) {
 function formatLogMessage(level, message) {
     const now = new Date();
     const timeString = now.toLocaleTimeString(undefined, { hour12: false, hourCycle: 'h23' });
-    return `[${timeString}] [${level}] ${message}`;
+    return {
+        "timestamp": timeString,
+        "level": level,
+        "message": message
+    }
 }
 
 function updateLogWindow() {
@@ -103,11 +113,5 @@ function updateLogWindow() {
         loggerWindow.webContents.send('update-logs', logBuffer);
     }
 }
-
-function logDebugMessage(message) {
-    addLog(LogLevel.DEBUG, message);
-}
-
-
 
 module.exports = { init, createLogWindow, closeLogWindow, addLog };
