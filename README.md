@@ -1,5 +1,5 @@
 <p align="center"><img src="build/icon.png" alt="OBS Replay Tool icon made by quaddrro" width="256"/></p>
-<p align="center"><i>(icon made by <a align="center" href="https://www.youtube.com/@quaddrro" target="blank">quaddrro</a>!)</i></p>
+<p align="center"><i>(icon made by <a align="center" href="https://quaddrro.carrd.co/" target="blank">quaddrro</a>!)</i></p>
 <h1 align="center">OBS Replay Tool</h1>
 
 This was made as a way for me to try and make OBS a good (maybe even better) alternative to GeForce Experience.
