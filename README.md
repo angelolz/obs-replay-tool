@@ -10,7 +10,7 @@ This is currently a work in progress right now, but from testing it works so far
 - Nvidia Instant Replay-like overlay that shows Replay Buffer status
 - Non-obtrusive icon that displays when a clip was successfully saved
 - Automatically change your application audio captur source to capture the active application's audio
-    - Blocklist to ignore programs
+    - Blacklist to ignore programs
 - See what application OBS is currently capturing
 - Replays can be saved into their own folders, given a base path to save to. (default is user's videos folder)
 - Turn off Replay Buffer when computer is idle for a certain amaount of time (default: 15 minutes)
