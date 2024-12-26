@@ -29,9 +29,9 @@ function updateTrayMenu() {
         {
             label: "Show Overlay",
             type: "checkbox",
-            checked: config.showOverlay,
+            checked: config.app.showOverlay,
             click: (menuItem) => {
-                config.showOverlay = menuItem.checked;
+                config.app.showOverlay = menuItem.checked;
                 configManager.saveConfig(config);
 
                 if (menuItem.checked) {
@@ -44,27 +44,38 @@ function updateTrayMenu() {
         {
             label: "Update Active Window",
             type: "checkbox",
-            checked: configManager.getConfig().updateActiveWindow,
+            checked: configManager.getConfig().app.updateActiveWindow,
             click: (menuItem) => {
-                config.updateActiveWindow = menuItem.checked;
+                config.app.updateActiveWindow = menuItem.checked;
                 configManager.saveConfig(config);
             },
         },
         {
+            label: "Turn off Replay Buffer when Idle",
+            type: "checkbox",
+            checked: configManager.getConfig().obs.turnOffReplayWhenIdle,
+            click: (menuItem) => {
+                config.obs.turnOffReplayWhenIdle = menuItem.checked;
+                eventBus.emit("toggle-idle-replay", menuItem.checked);
+                configManager.saveConfig(config);
+            },
+        },
+        { type: "separator" },
+        {
             label: "Show Debug Messages",
             type: "checkbox",
-            checked: configManager.getConfig().isDebug,
+            checked: configManager.getConfig().app.isDebug,
             click: (menuItem) => {
-                config.isDebug = menuItem.checked;
+                config.app.isDebug = menuItem.checked;
                 configManager.saveConfig(config);
             },
         },
         {
             label: "Show Logs Window",
             type: "checkbox",
-            checked: configManager.getConfig().showLogs,
+            checked: configManager.getConfig().app.showLogs,
             click: (menuItem) => {
-                config.showLogs = menuItem.checked;
+                config.app.showLogs = menuItem.checked;
                 configManager.saveConfig(config);
 
                 if (menuItem.checked) {

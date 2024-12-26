@@ -7,7 +7,7 @@ let loggerWindow = null;
 const logBuffer = [];
 
 function init() {
-    if(configManager.getConfig().showLogs === true)
+    if(configManager.getConfig().app.showLogs === true)
             createLogWindow();
 
     eventBus.on("open-log-window", createLogWindow);
@@ -49,7 +49,7 @@ function createLogWindow() {
         loggerWindow = null;
         
         let config = configManager.getConfig();
-        config.showLogs = false;
+        config.app.showLogs = false;
         configManager.saveConfig(config);
 
         eventBus.emit("update-tray-menu");
@@ -65,7 +65,7 @@ function closeLogWindow() {
     if (loggerWindow && loggerWindow.isVisible()) loggerWindow.close();
 
     let config = configManager.getConfig();
-    config.showLogs = false;
+    config.app.showLogs = false;
     configManager.saveConfig(config);
 
     eventBus.emit("update-tray-menu");
@@ -86,7 +86,7 @@ function addLog(level, message) {
     }
 
     const config = configManager.getConfig();
-    if (level === LogLevel.DEBUG && !config.isDebug) {
+    if (level === LogLevel.DEBUG && !config.app.isDebug) {
         return;
     }
 

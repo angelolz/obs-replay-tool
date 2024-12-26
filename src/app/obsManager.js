@@ -5,6 +5,7 @@ const loggerManager = require("./loggerManager");
 const activeWindow = require("active-win");
 const { LogLevel } = require("../logger/logLevel");
 const eventBus = require("./eventEmitter");
+const { powerMonitor } = require('electron');
 
 const obs = new OBSWebSocket();
 let connected = false;
@@ -12,15 +13,57 @@ let tasks = null;
 let reconnect = null;
 let lastActiveWindow = null;
 let attemptedReconnect = false;
+let idleTimerInterval = null;
+let replayBufferEnabled = false;
 
 function init() {
     setupEventListeners();
     connect();
+    toggleIdleTimer(configManager.getConfig().obs.turnOffReplayWhenIdle);
 }
 
 function setupEventListeners() {
     obs.on("ExitStarted", handleExitStarted);
     obs.on("ReplayBufferSaved", handleReplayBufferSaved);
+    eventBus.on("toggle-idle-replay", (toggle) => {toggleIdleTimer(toggle)})
+}
+
+async function toggleIdleTimer(toggle) {
+    if(toggle) {
+        idleTimerInterval = setInterval(async () => {
+            const idle = powerMonitor.getSystemIdleTime();
+            const obsConfig = configManager.getConfig().obs;
+
+            if(replayBufferEnabled && connected && obsConfig.turnOffReplayWhenIdle && idle > obsConfig.idleTime) {
+                await toggleReplayBuffer(false);
+            }
+
+            if(!replayBufferEnabled && connected && idle === 0) {
+                await toggleReplayBuffer(true);
+            }
+
+        }, 3000);
+    } else {
+        if(idleTimerInterval !== null) {
+            clearInterval(idleTimerInterval);
+        }
+    }
+}
+
+async function toggleReplayBuffer(toggle) {
+    try {
+        loggerManager.addLog(LogLevel.DEBUG, "called toggle replayBuffer with: " + toggle);
+
+        if(!toggle && replayBufferEnabled) {
+            await obs.call("StopReplayBuffer");
+            replayBufferEnabled = false;
+        } else if(toggle && !replayBufferEnabled) {
+            await obs.call("StartReplayBuffer");
+            replayBufferEnabled = true;
+        }
+    } catch(err) {
+        loggerManager.addLog(LogLevel.ERROR, "couldn't toggle replay buffer: " + JSON.stringify(err))
+    }
 }
 
 function handleExitStarted() {
@@ -80,9 +123,9 @@ function update() {
 
 async function updateActiveWindow() {
     const config = configManager.getConfig();
-    if (!connected || !config.updateActiveWindow) return;
+    if (!connected || !config.app.updateActiveWindow) return;
 
-    const getInputSettingsRes = await fetchInputSettings(config.gameCaptureSourceName);
+    const getInputSettingsRes = await fetchInputSettings(config.obs.gameCaptureSourceName);
     if (!getInputSettingsRes) return;
 
     if (appManager.getOverlayWindow() != null) {
@@ -113,7 +156,7 @@ async function checkAndChangeActiveWindow(config, getInputSettingsRes) {
     lastActiveWindow = activeApplicationName;
 
     const getItemsRes = await obs.call("GetInputPropertiesListPropertyItems", {
-        inputName: config.gameCaptureSourceName,
+        inputName: config.obs.gameCaptureSourceName,
         propertyName: "window",
     });
 
@@ -121,7 +164,7 @@ async function checkAndChangeActiveWindow(config, getInputSettingsRes) {
     if (index < 0) return;
 
     const matchingAppName = getApplicationName(getItemsRes.propertyItems[index].itemValue, ":");
-    if (config.blacklist.some(item => item === matchingAppName)) {
+    if (config.app.blacklist.some(item => item === matchingAppName)) {
         loggerManager.addLog(LogLevel.DEBUG, `${lastActiveWindow} is blacklisted, skipping`);
         return;
     }
@@ -134,7 +177,7 @@ async function checkAndChangeActiveWindow(config, getInputSettingsRes) {
 async function changeInputSettings(newWindowValue) {
     const config = configManager.getConfig();
     await obs.call("SetInputSettings", {
-        inputName: config.gameCaptureSourceName,
+        inputName: config.obs.gameCaptureSourceName,
         inputSettings: { window: newWindowValue },
     });
 
@@ -150,19 +193,19 @@ function formatApplicationName(windowTitle) {
 
 async function changeOutputSettings(windowTitle) {
     const config = configManager.getConfig();
-    let path = config.baseOutputPath;
+    let path = config.obs.baseOutputPath;
     if (path.endsWith('/') || path.endsWith('\\')) {
         path = path.slice(0, -1);
     }
 
     console.log(`changing dir to ${path}/${formatApplicationName(windowTitle)}`);
-    console.log(`format is: ${formatApplicationName(windowTitle)} ${config.filenameFormat}`);
-    
+    console.log(`format is: ${formatApplicationName(windowTitle)} ${config.obs.filenameFormat}`);
+
     await obs.call("SetOutputSettings", {
         "outputName": "Replay Buffer",
         "outputSettings": {
             "directory": `${path}/${formatApplicationName(windowTitle)}`,
-            "format": `${formatApplicationName(windowTitle)} ${config.filenameFormat}`
+            "format": `${formatApplicationName(windowTitle)} ${config.obs.filenameFormat}`
         }
     });
 }
@@ -176,9 +219,10 @@ async function updateReplayStatus() {
     if (!connected) return;
 
     const status = await fetchReplayStatus();
-    eventBus.emit("update-tray-image", status.outputActive);
+    replayBufferEnabled = status.outputActive;
+    eventBus.emit("update-tray-image", replayBufferEnabled);
     if (status && appManager.getOverlayWindow() != null) {
-        appManager.getOverlayWindow().webContents.send("change-image", status.outputActive);
+        appManager.getOverlayWindow().webContents.send("change-image", replayBufferEnabled);
     }
 }
 

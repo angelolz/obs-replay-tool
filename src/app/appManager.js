@@ -10,7 +10,7 @@ function init() {
     
     loggerManager.addLog(LogLevel.INFO, "Initializing app...");
 
-    if (configManager.getConfig().showOverlay === true)
+    if (configManager.getConfig().app.showOverlay === true)
         createOverlay();
     else
         loggerManager.addLog(LogLevel.WARNING, "Overlay is disabled, you can see Replay Buffer status using the tray icon.");

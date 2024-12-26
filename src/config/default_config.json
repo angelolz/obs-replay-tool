@@ -4,20 +4,26 @@
         "port": 4455,
         "password": ""
     },
-    "gameCaptureSourceName": "Game Audio Capture",
-    "baseOutputPath": "",
-    "filenameFormat": "%CCYY-%MM-%DD %hh-%mm-%ss",
-    "updateActiveWindow": true,
-    "showOverlay": true,
-    "blacklist": [
-        "Discord.exe",
-        "electron.exe",
-        "VSCodium.exe",
-        "SearchHost.exe",
-        "explorer.exe",
-        "steamwebhelper.exe",
-        "WindowsTerminal.exe"
-    ],
-    "isDebug": false,
-    "showLogs": false
+    "obs": {
+        "gameCaptureSourceName": "Game Audio Capture",
+        "baseOutputPath": "",
+        "filenameFormat": "%CCYY-%MM-%DD %hh-%mm-%ss",
+        "turnOffReplayWhenIdle": true,
+        "idleTime": 900
+    },
+    "app": {
+        "updateActiveWindow": true,
+        "showOverlay": true,
+        "blacklist": [
+            "Discord.exe",
+            "electron.exe",
+            "VSCodium.exe",
+            "SearchHost.exe",
+            "explorer.exe",
+            "steamwebhelper.exe",
+            "WindowsTerminal.exe"
+        ],
+        "isDebug": false,
+        "showLogs": false
+    }
 }

@@ -4,6 +4,10 @@ I thought about doing this because of how much customization when using OBS's Re
 
 This is currently a work in progress right now, but from testing it works so far, although I do want to add some features.
 
+# Features
+- Replays can be saved into their own folders, given a base path to save to.
+- Turn off Replay Buffer when computer is idle for a certain amaount of time (default: 15 minutes)
+
 # Setup
 1. Clone this repo.
 2. Install dependencies: `npm i`
