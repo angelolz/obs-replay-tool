@@ -4,7 +4,7 @@ ipcRenderer.on('update-logs', (event, logs) => {
     const logContainer = document.getElementById('logContainer');
     logContainer.innerHTML = '';
 
-    logs.forEach(log => {
+    logs.forEach((log) => {
         const logLine = document.createElement('div');
         logLine.className = 'log-line';
 
@@ -30,14 +30,14 @@ ipcRenderer.on('update-logs', (event, logs) => {
 });
 
 function getColorForLevel(level) {
-    switch(level) {
-        case "ERROR":
+    switch (level) {
+        case 'ERROR':
             return 'red';
-        case "INFO":
+        case 'INFO':
             return '#37eddb';
-        case "WARNING":
-            return 'yellow'
-        case "DEBUG":
+        case 'WARNING':
+            return 'yellow';
+        case 'DEBUG':
             return '#3c7d76';
         default:
             return '#959696';

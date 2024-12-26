@@ -1,4 +1,4 @@
-const configManager = require("./src/app/configManager");
+const configManager = require('./src/app/configManager');
 const obsManager = require('./src/app/obsManager');
 const appManager = require('./src/app/appManager');
 const loggerManager = require('./src/app/loggerManager');
@@ -12,10 +12,8 @@ try {
         appManager.init();
         trayManager.init();
         loggerManager.init();
-    })
-}
-
-catch(err) {
+    });
+} catch (err) {
     console.log(err);
     process.exit(0);
 }

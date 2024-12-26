@@ -1,25 +1,25 @@
-const { app, Tray, Menu } = require("electron");
-const configManager = require("./configManager");
-const eventBus = require("./eventEmitter");
+const { app, Tray, Menu } = require('electron');
+const configManager = require('./configManager');
+const eventBus = require('./eventEmitter');
 
 let tray = null;
 
 function init() {
     createTray();
-    eventBus.on("update-tray-image", (state) => {
-        tray.setImage(state ? "img/on.png" : "img/off.png");
+    eventBus.on('update-tray-image', (state) => {
+        tray.setImage(state ? 'img/on.png' : 'img/off.png');
     });
-    eventBus.on("update-tray-menu", updateTrayMenu);
+    eventBus.on('update-tray-menu', updateTrayMenu);
     app.on('window-all-closed', (event) => {
         if (process.platform !== 'darwin' && tray) {
-          event.preventDefault(); // Prevent default quit behavior [1, 2, 3]
+            event.preventDefault(); // Prevent default quit behavior [1, 2, 3]
         }
     });
 }
 
 function createTray() {
-    tray = new Tray("img/wait.png");
-    tray.setToolTip("OBS Replay Tool"); 
+    tray = new Tray('img/wait.png');
+    tray.setToolTip('OBS Replay Tool');
     updateTrayMenu();
 }
 
@@ -27,8 +27,8 @@ function updateTrayMenu() {
     const config = configManager.getConfig();
     const context = Menu.buildFromTemplate([
         {
-            label: "Show Overlay",
-            type: "checkbox",
+            label: 'Show Overlay',
+            type: 'checkbox',
             checked: config.app.showOverlay,
             click: (menuItem) => {
                 config.app.showOverlay = menuItem.checked;
@@ -42,8 +42,8 @@ function updateTrayMenu() {
             },
         },
         {
-            label: "Update Active Window",
-            type: "checkbox",
+            label: 'Update Active Window',
+            type: 'checkbox',
             checked: configManager.getConfig().app.updateActiveWindow,
             click: (menuItem) => {
                 config.app.updateActiveWindow = menuItem.checked;
@@ -51,19 +51,19 @@ function updateTrayMenu() {
             },
         },
         {
-            label: "Turn off Replay Buffer when Idle",
-            type: "checkbox",
+            label: 'Turn off Replay Buffer when Idle',
+            type: 'checkbox',
             checked: configManager.getConfig().obs.turnOffReplayWhenIdle,
             click: (menuItem) => {
                 config.obs.turnOffReplayWhenIdle = menuItem.checked;
-                eventBus.emit("toggle-idle-replay", menuItem.checked);
+                eventBus.emit('toggle-idle-replay', menuItem.checked);
                 configManager.saveConfig(config);
             },
         },
-        { type: "separator" },
+        { type: 'separator' },
         {
-            label: "Show Debug Messages",
-            type: "checkbox",
+            label: 'Show Debug Messages',
+            type: 'checkbox',
             checked: configManager.getConfig().app.isDebug,
             click: (menuItem) => {
                 config.app.isDebug = menuItem.checked;
@@ -71,25 +71,27 @@ function updateTrayMenu() {
             },
         },
         {
-            label: "Show Logs Window",
-            type: "checkbox",
+            label: 'Show Logs Window',
+            type: 'checkbox',
             checked: configManager.getConfig().app.showLogs,
             click: (menuItem) => {
                 config.app.showLogs = menuItem.checked;
                 configManager.saveConfig(config);
 
                 if (menuItem.checked) {
-                    eventBus.emit("open-log-window");
+                    eventBus.emit('open-log-window');
                 } else {
-                    eventBus.emit("close-log-window");
+                    eventBus.emit('close-log-window');
                 }
             },
         },
-        { type: "separator" },
+        { type: 'separator' },
         {
-            label: "Quit",
-            type: "normal",
-            click: () => { app.quit();},
+            label: 'Quit',
+            type: 'normal',
+            click: () => {
+                app.quit();
+            },
         },
     ]);
 
@@ -98,5 +100,5 @@ function updateTrayMenu() {
 
 module.exports = {
     init,
-    updateTrayMenu
-}
+    updateTrayMenu,
+};

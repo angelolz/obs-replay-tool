@@ -1,26 +1,27 @@
-const { app, BrowserWindow, screen } = require("electron");
-const configManager = require("./configManager");
-const loggerManager = require("./loggerManager");
-const { LogLevel } = require("../logger/logLevel");
-const eventBus = require("./eventEmitter");
+const { app, BrowserWindow, screen } = require('electron');
+const configManager = require('./configManager');
+const loggerManager = require('./loggerManager');
+const { LogLevel } = require('../logger/logLevel');
+const eventBus = require('./eventEmitter');
 
 let overlayWindow = null;
 
 function init() {
-    
-    loggerManager.addLog(LogLevel.INFO, "Initializing app...");
+    loggerManager.addLog(LogLevel.INFO, 'Initializing app...');
 
-    if (configManager.getConfig().app.showOverlay === true)
-        createOverlay();
+    if (configManager.getConfig().app.showOverlay === true) createOverlay();
     else
-        loggerManager.addLog(LogLevel.WARNING, "Overlay is disabled, you can see Replay Buffer status using the tray icon.");
+        loggerManager.addLog(
+            LogLevel.WARNING,
+            'Overlay is disabled, you can see Replay Buffer status using the tray icon.'
+        );
 
-    eventBus.on("hide-overlay", () => { if(overlayWindow && overlayWindow.isVisible()) overlayWindow.hide() });
-    eventBus.on("show-overlay", () => { 
-        if(overlayWindow)
-            overlayWindow.show();
-        else 
-            createOverlay();
+    eventBus.on('hide-overlay', () => {
+        if (overlayWindow && overlayWindow.isVisible()) overlayWindow.hide();
+    });
+    eventBus.on('show-overlay', () => {
+        if (overlayWindow) overlayWindow.show();
+        else createOverlay();
     });
 }
 
@@ -47,11 +48,11 @@ function createOverlay() {
         },
         focusable: false,
         alwaysOnTop: true,
-        skipTaskbar: true
+        skipTaskbar: true,
     });
 
     overlayWindow.setIgnoreMouseEvents(true);
-    overlayWindow.loadFile("./src/windows/overlay/index.html");
+    overlayWindow.loadFile('./src/windows/overlay/index.html');
 
     setInterval(() => {
         if (overlayWindow && !overlayWindow.isDestroyed()) {
@@ -60,7 +61,7 @@ function createOverlay() {
         }
     }, 60000);
 
-    loggerManager.addLog(LogLevel.INFO, "Overlay window created and ready.");
+    loggerManager.addLog(LogLevel.INFO, 'Overlay window created and ready.');
 }
 
 function getOverlayWindow() {

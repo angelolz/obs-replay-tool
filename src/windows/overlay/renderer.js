@@ -2,40 +2,38 @@ const { ipcRenderer } = require('electron');
 let showTimeout, resetTimeout;
 
 ipcRenderer.on('change-image', (event, state) => {
-    const icon = document.getElementById("status");
-    if (state === true)
-      icon.src = '../../../img/on.png'
-    else
-      icon.src = '../../../img/off.png'
+    const icon = document.getElementById('status');
+    if (state === true) icon.src = '../../../img/on.png';
+    else icon.src = '../../../img/off.png';
 });
 
 ipcRenderer.on('saved-success', (event, state) => {
-  showAndFade();
+    showAndFade();
 });
 
-ipcRenderer.on("change-active", (event, text) => {
-  const element = document.getElementById("title");
-  element.innerText = text;
-})
+ipcRenderer.on('change-active', (event, text) => {
+    const element = document.getElementById('title');
+    element.innerText = text;
+});
 
 function resetElement() {
-  const element = document.getElementById('saved');
-  element.style.opacity = '1';
+    const element = document.getElementById('saved');
+    element.style.opacity = '1';
 }
 
 function showAndFade() {
-  const element = document.getElementById('saved');
-  
-  // Clear any existing timeouts
-  clearTimeout(showTimeout);
-  clearTimeout(resetTimeout);
+    const element = document.getElementById('saved');
 
-  // Reset the element's state
-  resetElement();
+    // Clear any existing timeouts
+    clearTimeout(showTimeout);
+    clearTimeout(resetTimeout);
 
-  // Start the animation
+    // Reset the element's state
+    resetElement();
 
-  showTimeout = setTimeout(() => {
-    element.style.opacity = '0';
-  }, 3000);
+    // Start the animation
+
+    showTimeout = setTimeout(() => {
+        element.style.opacity = '0';
+    }, 3000);
 }
