@@ -7,10 +7,8 @@ let loggerWindow = null;
 const logBuffer = [];
 
 function init() {
-    app.whenReady().then(() => {
-        if(configManager.getConfig().showLogs === true)
+    if(configManager.getConfig().showLogs === true)
             createLogWindow();
-    });
 
     eventBus.on("open-log-window", createLogWindow);
     eventBus.on("close-log-window", closeLogWindow);

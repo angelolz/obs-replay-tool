@@ -7,7 +7,15 @@
     "gameCaptureSourceName": "Game Audio Capture",
     "updateActiveWindow": true,
     "showOverlay": true,
-    "blacklist": [],
+    "blacklist": [
+        "Discord.exe",
+        "electron.exe",
+        "VSCodium.exe",
+        "SearchHost.exe",
+        "explorer.exe",
+        "steamwebhelper.exe",
+        "WindowsTerminal.exe"
+    ],
     "isDebug": false,
     "showLogs": false
 }

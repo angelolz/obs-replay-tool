@@ -92,6 +92,15 @@ async function updateActiveWindow() {
     await checkAndChangeActiveWindow(config, getInputSettingsRes);
 }
 
+async function fetchInputSettings(inputName) {
+    try {
+        return await obs.call("GetInputSettings", { inputName });
+    } catch (err) {
+        loggerManager.addLog(LogLevel.ERROR, err);
+        return null;
+    }
+}
+
 async function checkAndChangeActiveWindow(config, getInputSettingsRes) {
     let activeWindowInfo = activeWindow.sync();
     if (activeWindowInfo === null) return;
@@ -108,9 +117,6 @@ async function checkAndChangeActiveWindow(config, getInputSettingsRes) {
         propertyName: "window",
     });
 
-    loggerManager.addLog(LogLevel.DEBUG, "activeWindowInfo: " + JSON.stringify(activeWindowInfo, null, 2));
-    loggerManager.addLog(LogLevel.DEBUG, "propertyItems: " + JSON.stringify(getItemsRes.propertyItems, null, 2));
-
     const index = getItemsRes.propertyItems.findIndex(item => item.itemName.indexOf(activeApplicationName) >= 0);
     if (index < 0) return;
 
@@ -120,8 +126,9 @@ async function checkAndChangeActiveWindow(config, getInputSettingsRes) {
         return;
     }
 
-    loggerManager.addLog(LogLevel.INFO, `changing audio: ${currentApplicationName} -> ${activeApplicationName}`);
+    loggerManager.addLog(LogLevel.DEBUG, `changing audio: ${currentApplicationName} -> ${activeApplicationName}`);
     await changeInputSettings(getItemsRes.propertyItems[index].itemValue);
+    await changeOutputSettings(getItemsRes.propertyItems[index].itemValue)
 }
 
 async function changeInputSettings(newWindowValue) {
@@ -137,17 +144,21 @@ async function changeInputSettings(newWindowValue) {
     loggerManager.addLog(LogLevel.INFO, `Changed audio settings to: ${formatApplicationName(newWindowValue)}`);
 }
 
-async function fetchInputSettings(inputName) {
-    try {
-        return await obs.call("GetInputSettings", { inputName });
-    } catch (err) {
-        loggerManager.addLog(LogLevel.ERROR, err);
-        return null;
-    }
+function formatApplicationName(windowTitle) {
+    return getApplicationName(windowTitle, ":").replace(".exe", "").replace(".EXE", "");
 }
 
-function formatApplicationName(windowTitle) {
-    return getApplicationName(windowTitle, ":").replace(".exe", "");
+async function changeOutputSettings(windowTitle) {
+    const config = configManager.getConfig();
+    console.log("changing dir to D:/Videos/" + formatApplicationName(windowTitle));
+    console.log("format is: " + formatApplicationName(windowTitle) + " %CCYY-%MM-%DD %hh-%mm-%ss");
+    await obs.call("SetOutputSettings", {
+        "outputName": "Replay Buffer",
+        "outputSettings": {
+            "directory": "D:/Videos/" + formatApplicationName(windowTitle),
+            "format": formatApplicationName(windowTitle) + " %CCYY-%MM-%DD %hh-%mm-%ss"
+        }
+    });
 }
 
 function getApplicationName(windowTitle, delimiter) {

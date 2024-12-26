@@ -1,17 +1,38 @@
 {
-  "name": "obs-test",
+  "name": "obs-replay-tool",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "electron-builder",
+    "start": "electron ."
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "active-win": "^8.1.1",
-    "electron": "^27.1.2",
-    "nodemon": "^3.0.1",
     "obs-websocket-js": "^5.0.3"
+  },
+  "devDependencies": {
+    "electron-builder": "^25.1.8",
+    "electron": "^27.1.2"
+  },
+  "build": {
+    "appId": "com.angelolz.obsReplayTool",
+    "productName": "OBSReplayTool",
+    "directories": {
+      "output": "out"
+    },
+    "files": [
+      "src/**/*",
+      "node_modules/**/*",
+      "img/**/*",
+      "package.json",
+      "index.js"
+    ],
+    "win": {
+      "target": "portable"
+    }
   }
 }
