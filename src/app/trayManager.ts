@@ -1,36 +1,40 @@
-const { app, Tray, Menu } = require('electron');
-const configManager = require('./configManager');
-const eventBus = require('./eventEmitter');
+import { app, Tray, Menu } from 'electron';
+import configManager from './configManager';
+import eventBus from './eventEmitter';
 
-let tray = null;
+let tray: Tray | null = null;
 
-function init() {
+export function init(): void {
     createTray();
-    eventBus.on('update-tray-image', (state) => {
-        tray.setImage(state ? 'img/on.png' : 'img/off.png');
-    });
-    eventBus.on('update-tray-menu', updateTrayMenu);
-    app.on('window-all-closed', (event) => {
+    app.on('window-all-closed', (event: Electron.Event) => {
         if (process.platform !== 'darwin' && tray) {
             event.preventDefault();
         }
     });
+
+    eventBus.on('update-tray-image', (state: boolean) => {
+        if (tray) {
+            tray.setImage(state ? 'img/on.png' : 'img/off.png');
+        }
+    });
+
+    eventBus.on('update-tray-menu', updateTrayMenu);
 }
 
-function createTray() {
+function createTray(): void {
     tray = new Tray('img/wait.png');
     tray.setToolTip('OBS Replay Tool');
     updateTrayMenu();
 }
 
-function updateTrayMenu() {
+function updateTrayMenu(): void {
     const config = configManager.getConfig();
     const context = Menu.buildFromTemplate([
         {
             label: 'Show Overlay',
             type: 'checkbox',
             checked: config.app.showOverlay,
-            click: (menuItem) => {
+            click: (menuItem: Electron.MenuItem) => {
                 config.app.showOverlay = menuItem.checked;
                 configManager.saveConfig(config);
 
@@ -45,7 +49,7 @@ function updateTrayMenu() {
             label: 'Update Active Window',
             type: 'checkbox',
             checked: configManager.getConfig().app.updateActiveWindow,
-            click: (menuItem) => {
+            click: (menuItem: Electron.MenuItem) => {
                 config.app.updateActiveWindow = menuItem.checked;
                 configManager.saveConfig(config);
             },
@@ -54,7 +58,7 @@ function updateTrayMenu() {
             label: 'Turn off Replay Buffer when Idle',
             type: 'checkbox',
             checked: configManager.getConfig().obs.turnOffReplayWhenIdle,
-            click: (menuItem) => {
+            click: (menuItem: Electron.MenuItem) => {
                 config.obs.turnOffReplayWhenIdle = menuItem.checked;
                 eventBus.emit('toggle-idle-replay', menuItem.checked);
                 configManager.saveConfig(config);
@@ -65,7 +69,7 @@ function updateTrayMenu() {
             label: 'Show Debug Messages',
             type: 'checkbox',
             checked: configManager.getConfig().app.isDebug,
-            click: (menuItem) => {
+            click: (menuItem: Electron.MenuItem) => {
                 config.app.isDebug = menuItem.checked;
                 configManager.saveConfig(config);
             },
@@ -74,7 +78,7 @@ function updateTrayMenu() {
             label: 'Show Logs Window',
             type: 'checkbox',
             checked: configManager.getConfig().app.showLogs,
-            click: (menuItem) => {
+            click: (menuItem: Electron.MenuItem) => {
                 config.app.showLogs = menuItem.checked;
                 configManager.saveConfig(config);
 
@@ -95,10 +99,7 @@ function updateTrayMenu() {
         },
     ]);
 
-    tray.setContextMenu(context);
+    if (tray) {
+        tray.setContextMenu(context);
+    }
 }
-
-module.exports = {
-    init,
-    updateTrayMenu,
-};

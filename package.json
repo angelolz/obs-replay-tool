@@ -1,14 +1,14 @@
 {
     "name": "obs-replay-tool",
     "version": "1.0.0",
-    "description": "Nvidia Shadowplay-like overlay that shows OBS Replay Buffer Status with additional features.",
-    "main": "index.js",
+    "description": "OBSReplayTool",
+    "main": "out/dist/index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "build": "electron-builder",
-        "start": "electron ."
+        "build": "tsc && electron-builder",
+        "start": "electron -r ts-node/register src/index.ts"
     },
-    "author": "",
+    "author": "angelolz",
     "license": "ISC",
     "dependencies": {
         "active-win": "^8.1.1",
@@ -16,28 +16,32 @@
         "prettier": "^3.4.2"
     },
     "devDependencies": {
+        "@types/node": "^22.10.2",
         "electron": "^27.1.2",
-        "electron-builder": "^25.1.8"
+        "electron-builder": "^25.1.8",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.7.2"
     },
     "build": {
         "appId": "com.angelolz.obsReplayTool",
         "productName": "OBSReplayTool",
         "directories": {
-            "output": "out"
+            "output": "out/builds"
         },
         "files": [
-            "src/**/*",
+            "out/dist/**/*",
             "node_modules/**/*",
             "package.json",
-            "index.js",
-            "img/**/*"
+            "img/**/*",
+            "src/overlays/app/*",
+            "src/overlays/logger/*"
         ],
         "extraFiles": [
             "default_config.json",
             "img/**/*"
         ],
         "win": {
-            "target": "portable",
+            "target": ["portable", "nsis"],
             "icon": "./icon.png"
         }
     }
