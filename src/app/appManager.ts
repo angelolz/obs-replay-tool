@@ -56,7 +56,7 @@ function createOverlay(): void {
     });
 
     overlayWindow.setIgnoreMouseEvents(true);
-    overlayWindow.loadFile('overlays/app/index.html');
+    overlayWindow.loadFile('src/overlays/app/index.html');
 
     setInterval(() => {
         if (overlayWindow && !overlayWindow.isDestroyed()) {

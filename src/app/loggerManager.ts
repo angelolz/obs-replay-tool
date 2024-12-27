@@ -57,7 +57,7 @@ export function createLogWindow(): void {
         eventBus.emit('update-tray-menu');
     });
 
-    loggerWindow.loadFile('overlays/logger/logger.html');
+    loggerWindow.loadFile('src/overlays/logger/logger.html');
     loggerWindow.webContents.once('did-finish-load', () => {
         updateLogWindow();
     });
