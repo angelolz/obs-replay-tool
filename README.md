@@ -59,4 +59,11 @@ You can find all the settings you want to change in the `config.json` file that'
 
 - probably make a first-time setup thing?
 - ui for changing settings instead of having to manually modify config.json
-- add option to pick which corner to show overlay
+- add option to pick which corner to show overlay (also maybe add what monitor)
+- fix application audio not being found being thrown in logs constantly
+- write guide on how to set up with the app (pre-requisites)
+- write limitation stuff (maybe extra guides)
+  - examples: 
+    - current app window detection won't work on linux wayland bc wayland doesn't give you a way to find the active window
+    - linux obs doesn't have application audio capture
+- write notes on compat
