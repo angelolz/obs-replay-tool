@@ -15,6 +15,8 @@ let lastActiveWindow: string | null = null;
 let attemptedReconnect = false;
 let idleTimerInterval: NodeJS.Timeout | null = null;
 let replayBufferEnabled = false;
+let replayBufferDisabledByIdle = false;
+let idleCheckInProgress = false;
 
 export function init(): void {
     setupEventListeners();
@@ -31,39 +33,71 @@ function setupEventListeners(): void {
 }
 
 async function toggleIdleTimer(toggle: boolean): Promise<void> {
+    if (idleTimerInterval !== null) {
+        clearInterval(idleTimerInterval);
+        idleTimerInterval = null;
+    }
+
     if (toggle) {
         idleTimerInterval = setInterval(async () => {
+            if (idleCheckInProgress) return;
+
             const idle = powerMonitor.getSystemIdleTime();
             const obsConfig = getConfig().obs;
+            if (!connected || !obsConfig.turnOffReplayWhenIdle) return;
 
-            if (replayBufferEnabled && connected && obsConfig.turnOffReplayWhenIdle && idle > obsConfig.idleTime) {
-                await toggleReplayBuffer(false);
-            }
+            idleCheckInProgress = true;
 
-            if (!replayBufferEnabled && connected && idle === 0) {
-                await toggleReplayBuffer(true);
+            try {
+                if (replayBufferEnabled && idle > obsConfig.idleTime) {
+                    const stopped = await toggleReplayBuffer(false, 'computer idle timeout');
+                    if (stopped) {
+                        replayBufferDisabledByIdle = true;
+                    }
+                } else if (
+                    replayBufferDisabledByIdle &&
+                    !replayBufferEnabled &&
+                    idle === 0
+                ) {
+                    const started = await toggleReplayBuffer(true, 'computer became active');
+                    if (started) {
+                        replayBufferDisabledByIdle = false;
+                    }
+                }
+            } finally {
+                idleCheckInProgress = false;
             }
         }, 3000);
     } else {
-        if (idleTimerInterval !== null) {
-            clearInterval(idleTimerInterval);
-        }
+        replayBufferDisabledByIdle = false;
     }
 }
 
-async function toggleReplayBuffer(toggle: boolean): Promise<void> {
+async function toggleReplayBuffer(toggle: boolean, cause: string): Promise<boolean> {
+    const state = toggle ? 'on' : 'off';
+
     try {
-        addLog(LogLevel.DEBUG, 'called toggle replayBuffer with: ' + toggle);
+        addLog(LogLevel.DEBUG, `Requesting Replay Buffer ${state} (cause: ${cause})`);
 
         if (!toggle && replayBufferEnabled) {
             await obs.call('StopReplayBuffer');
             replayBufferEnabled = false;
+            addLog(LogLevel.INFO, `Replay Buffer turned off (cause: ${cause})`);
         } else if (toggle && !replayBufferEnabled) {
             await obs.call('StartReplayBuffer');
             replayBufferEnabled = true;
+            addLog(LogLevel.INFO, `Replay Buffer turned on (cause: ${cause})`);
+        } else {
+            return false;
         }
+
+        return true;
     } catch (err) {
-        addLog(LogLevel.ERROR, "couldn't toggle replay buffer: " + JSON.stringify(err));
+        addLog(
+            LogLevel.ERROR,
+            `Couldn't turn Replay Buffer ${state} (cause: ${cause}): ${JSON.stringify(err)}`
+        );
+        return false;
     }
 }
 
@@ -240,6 +274,9 @@ async function updateReplayStatus(): Promise<void> {
     const status = await fetchReplayStatus();
     if (status) {
         replayBufferEnabled = status.outputActive;
+        if (status.outputActive) {
+            replayBufferDisabledByIdle = false;
+        }
         eventBus.emit('update-tray-image', replayBufferEnabled);
         if (status && getOverlayWindow() != null) {
             getOverlayWindow().webContents.send('change-image', replayBufferEnabled);

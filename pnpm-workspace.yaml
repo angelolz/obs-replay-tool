@@ -1,0 +1,3 @@
+allowBuilds:
+  active-win: true
+  electron: true

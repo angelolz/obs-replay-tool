@@ -1,4 +1,5 @@
-import { BrowserWindow, screen, Display } from 'electron';
+import { app, BrowserWindow, screen } from 'electron';
+import path from 'path';
 import configManager from './configManager';
 import { addLog } from './loggerManager';
 import { LogLevel } from '../logger/logLevel';
@@ -56,7 +57,10 @@ function createOverlay(): void {
     });
 
     overlayWindow.setIgnoreMouseEvents(true);
-    overlayWindow.loadFile('src/overlays/app/index.html');
+    const overlayPath = app.isPackaged
+        ? path.join(app.getAppPath(), 'src', 'overlays', 'app', 'index.html')
+        : path.join(app.getAppPath(), 'overlays', 'app', 'index.html');
+    overlayWindow.loadFile(overlayPath);
 
     setInterval(() => {
         if (overlayWindow && !overlayWindow.isDestroyed()) {

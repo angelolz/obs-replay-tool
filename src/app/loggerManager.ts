@@ -1,4 +1,5 @@
-import { BrowserWindow, screen } from 'electron';
+import { app, BrowserWindow, screen } from 'electron';
+import path from 'path';
 import configManager from './configManager';
 import { LogLevel } from '../logger/logLevel';
 import eventBus from './eventEmitter';
@@ -57,7 +58,10 @@ export function createLogWindow(): void {
         eventBus.emit('update-tray-menu');
     });
 
-    loggerWindow.loadFile('src/overlays/logger/logger.html');
+    const loggerPath = app.isPackaged
+        ? path.join(app.getAppPath(), 'src', 'overlays', 'logger', 'logger.html')
+        : path.join(app.getAppPath(), 'overlays', 'logger', 'logger.html');
+    loggerWindow.loadFile(loggerPath);
     loggerWindow.webContents.once('did-finish-load', () => {
         updateLogWindow();
     });
