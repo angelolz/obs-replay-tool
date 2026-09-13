@@ -30,6 +30,9 @@ function setupEventListeners(): void {
     eventBus.on('toggle-idle-replay', (toggle: boolean) => {
         toggleIdleTimer(toggle);
     });
+    eventBus.on('config-updated', (config: Record<string, any>) => {
+        toggleIdleTimer(config.obs.turnOffReplayWhenIdle);
+    });
 }
 
 async function toggleIdleTimer(toggle: boolean): Promise<void> {

@@ -29,6 +29,14 @@ export function init(): void {
         else
             createOverlay();
     });
+
+    eventBus.on('config-updated', (config: Record<string, any>) => {
+        if (config.app.showOverlay) {
+            eventBus.emit('show-overlay');
+        } else {
+            eventBus.emit('hide-overlay');
+        }
+    });
 }
 
 function createOverlay(): void {

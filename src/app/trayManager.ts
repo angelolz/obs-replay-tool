@@ -19,6 +19,7 @@ export function init(): void {
     });
 
     eventBus.on('update-tray-menu', updateTrayMenu);
+    eventBus.on('config-updated', updateTrayMenu);
 }
 
 function createTray(): void {
@@ -88,6 +89,13 @@ function updateTrayMenu(): void {
                     eventBus.emit('close-log-window');
                 }
             },
+        },
+        {
+            label: 'Settings',
+            type: 'normal',
+            click: (menuItem: Electron.MenuItem) => {
+                eventBus.emit('open-config-window')
+            }
         },
         { type: 'separator' },
         {

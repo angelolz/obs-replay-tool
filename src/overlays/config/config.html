@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Settings</title>
+        <link rel="stylesheet" href="style.css" />
+        <style></style>
+    </head>
+    <body>
+        <form id="settings-form" class="config-container">
+            <div>
+                <h2>Web Socket Configuration</h2>
+                <div>
+                    <label for="ip">IP Address: </label>
+                    <input id="ip" type="text" name="ip" required>
+                </div>
+                <div>
+                    <label for="port">Port: </label>
+                    <input id="port" type="number" name="port" min="1" max="65535" required>
+                </div>
+                <div>
+                    <label for="password">Websocket Password: </label>
+                    <input id="password" type="password" name="password">
+                </div>
+            </div>
+            <div>
+                <h2>OBS Configuration</h2>
+                <div>
+                    <label for="gameCaptureSourceName">Game Capture Source Name:</label>
+                    <input id="gameCaptureSourceName" type="text" name="gameCaptureSourceName" required>
+                </div>
+                <div>
+                    <label for="baseOutputPath">Base Output Path: </label>
+                    <input id="baseOutputPath" type="text" name="baseOutputPath">
+                </div>
+                <div>
+                    <label for="filenameFormat">File Name Format: </label>
+                    <input id="filenameFormat" type="text" name="filenameFormat" required>
+                </div>
+                <div>
+                    <label for="turnOffReplayWhenIdle">Turn off Replay When idle: </label>
+                    <input id="turnOffReplayWhenIdle" type="checkbox" name="turnOffReplayWhenIdle">
+                </div>
+                <div>
+                    <label for="idleTime">Idle Time (in seconds): </label>
+                    <input id="idleTime" type="number" name="idleTime" min="0" required>
+                </div>
+            </div>
+            <div>
+                <h2>App Settings</h2>
+                <div>
+                    <label for="updateActiveWindow">Update Title based on Active Window: </label>
+                    <input id="updateActiveWindow" type="checkbox" name="updateActiveWindow">
+                </div>
+                <div>
+                    <label for="showOverlay">Show Overlay:  </label>
+                    <input id="showOverlay" type="checkbox" name="showOverlay">
+                </div>
+                <div>
+                    <label for="blacklist">Ignored executables (one per line):</label>
+                    <br/>
+                    <textarea id="blacklist" name="blacklist" rows="5"></textarea>
+                </div>
+            </div>
+            <p id="status" role="status"></p>
+            <button type="submit">Save settings</button>
+        </form>
+        <script src="config.js"></script>
+    </body>
+</html>
