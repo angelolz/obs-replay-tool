@@ -17,7 +17,7 @@
     },
     "devDependencies": {
         "@types/node": "^22.10.2",
-        "electron": "^27.1.2",
+        "electron": "27.3.11",
         "electron-builder": "^25.1.8",
         "ts-node": "^10.9.2",
         "typescript": "^5.7.2"
@@ -34,6 +34,7 @@
             "package.json",
             "img/**/*",
             "src/overlays/app/*",
+            "src/overlays/config/*",
             "src/overlays/logger/*"
         ],
         "extraFiles": [
@@ -41,8 +42,15 @@
             "img/**/*"
         ],
         "win": {
-            "target": ["portable", "nsis"],
+            "target": [
+                "portable",
+                "nsis"
+            ],
             "icon": "./icon.png"
         }
+    },
+    "allowScripts": {
+        "active-win@8.2.1": true,
+        "electron@27.3.11": true
     }
 }
