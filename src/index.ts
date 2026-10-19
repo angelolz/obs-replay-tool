@@ -4,7 +4,20 @@ import { init as obsManagerInit} from './app/obsManager';
 import { init as appManagerInit } from './app/appManager';
 import { init as trayManagerInit } from './app/trayManager';
 import { init as loggerManagerInit } from './app/loggerManager';
+import { shutdown as obsManagerShutdown } from './app/obsManager';
+import { shutdown as appManagerShutdown } from './app/appManager';
 import * as statics from './statics';
+
+function shutdown(): void {
+    obsManagerShutdown();
+    appManagerShutdown();
+}
+
+app.on('before-quit', shutdown);
+app.on('browser-window-created', (_event, window) => {
+    // Electron 27 skips app quit hooks during Windows shutdown.
+    window.on('session-end', shutdown);
+});
 
 if (!app.requestSingleInstanceLock()) {
     app.whenReady().then(async () => {

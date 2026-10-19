@@ -6,6 +6,14 @@ import { LogLevel } from '../logger/logLevel';
 import eventBus from './eventEmitter';
 
 let overlayWindow: BrowserWindow | null = null;
+let overlayRefreshInterval: NodeJS.Timeout | null = null;
+
+export function shutdown(): void {
+    if (overlayRefreshInterval !== null) {
+        clearInterval(overlayRefreshInterval);
+        overlayRefreshInterval = null;
+    }
+}
 
 export function init(): void {
     addLog(LogLevel.INFO, 'Initializing app...');
@@ -70,7 +78,7 @@ function createOverlay(): void {
         : path.join(app.getAppPath(), 'overlays', 'app', 'index.html');
     overlayWindow.loadFile(overlayPath);
 
-    setInterval(() => {
+    overlayRefreshInterval = setInterval(() => {
         if (overlayWindow && !overlayWindow.isDestroyed()) {
             overlayWindow.show();
             overlayWindow.setSkipTaskbar(true); // Prevents the overlay from appearing in the taskbar
@@ -81,5 +89,5 @@ function createOverlay(): void {
 }
 
 export function getOverlayWindow(): BrowserWindow | null {
-    return overlayWindow;
+    return overlayWindow && !overlayWindow.isDestroyed() ? overlayWindow : null;
 }

@@ -10,6 +10,7 @@ import activeWindow from 'active-win';
 const obs = new OBSWebSocket();
 let connected = false;
 let tasks: NodeJS.Timeout | null = null;
+let startTasksTimeout: NodeJS.Timeout | null = null;
 let reconnect: NodeJS.Timeout | null = null;
 let lastActiveWindow: string | null = null;
 let attemptedReconnect = false;
@@ -17,6 +18,8 @@ let idleTimerInterval: NodeJS.Timeout | null = null;
 let replayBufferEnabled = false;
 let replayBufferDisabledByIdle = false;
 let idleCheckInProgress = false;
+let updateInProgress = false;
+let shuttingDown = false;
 
 export function init(): void {
     setupEventListeners();
@@ -33,6 +36,20 @@ function setupEventListeners(): void {
     eventBus.on('config-updated', (config: Record<string, any>) => {
         toggleIdleTimer(config.obs.turnOffReplayWhenIdle);
     });
+}
+
+export function shutdown(): void {
+    if (shuttingDown) return;
+    shuttingDown = true;
+    connected = false;
+    clearIntervalIfNeeded();
+    if (idleTimerInterval !== null) {
+        clearInterval(idleTimerInterval);
+        idleTimerInterval = null;
+    }
+
+    // The OS must not wait for the websocket to close during shutdown.
+    void obs.disconnect().catch(() => undefined);
 }
 
 async function toggleIdleTimer(toggle: boolean): Promise<void> {
@@ -106,6 +123,7 @@ async function toggleReplayBuffer(toggle: boolean, cause: string): Promise<boole
 
 
 function handleExitStarted(): void {
+    if (shuttingDown) return;
     connected = false;
     clearIntervalIfNeeded();
     addLog(LogLevel.INFO, 'OBS shutting down... Attempting to reconnect...');
@@ -113,8 +131,18 @@ function handleExitStarted(): void {
 }
 
 function clearIntervalIfNeeded(): void {
-    if (tasks !== null) clearInterval(tasks);
-    if (reconnect !== null) clearInterval(reconnect);
+    if (startTasksTimeout !== null) {
+        clearTimeout(startTasksTimeout);
+        startTasksTimeout = null;
+    }
+    if (tasks !== null) {
+        clearInterval(tasks);
+        tasks = null;
+    }
+    if (reconnect !== null) {
+        clearInterval(reconnect);
+        reconnect = null;
+    }
 }
 
 function handleReplayBufferSaved(): void {
@@ -124,6 +152,7 @@ function handleReplayBufferSaved(): void {
 }
 
 function connect(): void {
+    if (shuttingDown) return;
     const websocketConfig = getConfig().websocket;
     obs.connect(`ws://${websocketConfig.ip}:${websocketConfig.port}`, websocketConfig.password)
         .then(handleConnectionSuccess)
@@ -131,12 +160,18 @@ function connect(): void {
 }
 
 function handleConnectionSuccess(): void {
+    if (shuttingDown) {
+        void obs.disconnect().catch(() => undefined);
+        return;
+    }
     attemptedReconnect = false;
     clearIntervalIfNeeded();
     connected = true;
 
     // give some delay before starting to call obs requests
-    setTimeout(() => {
+    startTasksTimeout = setTimeout(() => {
+        startTasksTimeout = null;
+        if (shuttingDown || !connected) return;
         tasks = setInterval(update, 5000);
     });
 
@@ -145,6 +180,7 @@ function handleConnectionSuccess(): void {
 
 
 function handleConnectionFailure(): void {
+    if (shuttingDown) return;
     connected = false;
 
     if (getOverlayWindow() != null) {
@@ -160,10 +196,17 @@ function handleConnectionFailure(): void {
 }
 
 function update(): void {
-    if (connected) {
-        updateActiveWindow();
-        updateReplayStatus();
-    }
+    if (!connected || shuttingDown || updateInProgress) return;
+
+    updateInProgress = true;
+    void Promise.all([updateActiveWindow(), updateReplayStatus()])
+        .catch((err) => {
+            const message = err instanceof Error ? err.message : String(err);
+            addLog(LogLevel.ERROR, `OBS update failed: ${message}`);
+        })
+        .finally(() => {
+            updateInProgress = false;
+        });
 }
 
 async function updateActiveWindow(): Promise<void> {
